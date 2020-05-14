@@ -913,7 +913,7 @@ struct FakeEhGlobals {
 
 // LLVM's libstdc++ doesn't declare __cxa_get_globals in its cxxabi.h. GNU does. Because it is
 // extern "C", the compiler wills get upset if we re-declare it even in a different namespace.
-#if _LIBCPPABI_VERSION
+#if _LIBCPPABI_VERSION || __QNX__
 extern "C" void* __cxa_get_globals();
 #else
 using abi::__cxa_get_globals;
