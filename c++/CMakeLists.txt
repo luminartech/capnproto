@@ -69,7 +69,7 @@ else()
     message(SEND_ERROR "Cap'n Proto requires compiler-specific extensions (e.g., -std=gnu++14). Please leave CMAKE_CXX_EXTENSIONS undefined or ON.")
   endif()
 
-  if (NOT ANDROID)
+  if (NOT ANDROID AND NOT QNXNTO)
     add_compile_options(-pthread)
   endif()
 endif()
