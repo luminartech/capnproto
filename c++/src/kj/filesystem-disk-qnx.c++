@@ -18,6 +18,21 @@
 #include "miniposix.h"
 #include <algorithm>
 
+#include <cassert>
+
+namespace {
+
+  std::string fs_join(std::string path, std::string child)
+  {
+    if (path.back() == '/')
+    {
+      return path + child;
+    }
+
+    return path + '/' + child;
+  }
+}
+
 namespace kj {
 namespace {
 
@@ -161,11 +176,11 @@ public:
         KJ_FAIL_SYSCALL("fnctl(fd, F_DUPFD_CLOEXEC, 3)", error) { break; }
         break;
     } else {
-      return AutoCloseFd(fd2);
+      return AutoCloseFd(fd2, fd.get_path());
     }
 
     KJ_SYSCALL(fd2 = ::dup(fd));
-    AutoCloseFd result(fd2);
+    AutoCloseFd result(fd2, fd.get_path());
     setCloexec(result);
     return result;
   }
@@ -369,15 +384,8 @@ public:
     // Seek to start of directory.
     KJ_SYSCALL(lseek(fd, 0, SEEK_SET));
 
-    // Unfortunately, fdopendir() takes ownership of the file descriptor. Therefore we need to
-    // make a duplicate.
-    int duped;
-    KJ_SYSCALL(duped = dup(fd));
-    DIR* dir = fdopendir(duped);
-    if (dir == nullptr) {
-      close(duped);
-      KJ_FAIL_SYSCALL("fdopendir", errno);
-    }
+    const auto p = fd.get_path().c_str();
+    DIR* dir = opendir(p);
 
     KJ_DEFER(closedir(dir));
     typedef Decay<decltype(func(instance<StringPtr>(), instance<FsNode::Type>()))> Entry;
@@ -424,12 +432,13 @@ public:
   }
 
   bool exists(PathPtr path) const {
-    KJ_SYSCALL_HANDLE_ERRORS(faccessat(fd, path.toString().cStr(), F_OK, 0)) {
+    const auto p = fs_join(fd.get_path(), path.toString().cStr());
+    KJ_SYSCALL_HANDLE_ERRORS(access(p.c_str(), F_OK)) {
       case ENOENT:
       case ENOTDIR:
         return false;
       default:
-        KJ_FAIL_SYSCALL("faccessat(fd, path)", error, path) { return false; }
+        KJ_FAIL_SYSCALL("access(path, mode)", error, path) { return false; }
     }
     return true;
   }
@@ -448,24 +457,26 @@ public:
 
   Maybe<Own<const ReadableFile>> tryOpenFile(PathPtr path) const {
     int newFd;
-    KJ_SYSCALL_HANDLE_ERRORS(newFd = openat(
-        fd, path.toString().cStr(), O_RDONLY | MAYBE_O_CLOEXEC)) {
+    const auto p = fs_join(fd.get_path(), path.toString().cStr());
+    KJ_SYSCALL_HANDLE_ERRORS(newFd = open(
+                               p.c_str(), O_RDONLY | MAYBE_O_CLOEXEC)) {
       case ENOENT:
       case ENOTDIR:
         return nullptr;
       default:
-        KJ_FAIL_SYSCALL("openat(fd, path, O_RDONLY)", error, path) { return nullptr; }
+        KJ_FAIL_SYSCALL("open(path, O_RDONLY)", error, p) { return nullptr; }
     }
 
-    kj::AutoCloseFd result(newFd);
+    kj::AutoCloseFd result(newFd, p);
 
     return newDiskReadableFile(kj::mv(result));
   }
 
   Maybe<AutoCloseFd> tryOpenSubdirInternal(PathPtr path) const {
     int newFd;
-    KJ_SYSCALL_HANDLE_ERRORS(newFd = openat(
-        fd, path.toString().cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+    const auto p = fs_join(fd.get_path(), path.toString().cStr());
+    KJ_SYSCALL_HANDLE_ERRORS(newFd = open(
+                               p.c_str(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
       case ENOENT:
         return nullptr;
       case ENOTDIR:
@@ -477,10 +488,10 @@ public:
         }
         // fallthrough
       default:
-        KJ_FAIL_SYSCALL("openat(fd, path, O_DIRECTORY)", error, path) { return nullptr; }
+        KJ_FAIL_SYSCALL("open(path, O_DIRECTORY)", error, p) { return nullptr; }
     }
 
-    kj::AutoCloseFd result(newFd);
+    kj::AutoCloseFd result(newFd, p);
 
     return kj::mv(result);
   }
@@ -490,10 +501,11 @@ public:
   }
 
   Maybe<String> tryReadlink(PathPtr path) const {
+    const auto p = fs_join(fd.get_path(), path.toString().cStr());
     size_t trySize = 256;
     for (;;) {
       KJ_STACK_ARRAY(char, buf, trySize, 256, 4096);
-      ssize_t n = readlinkat(fd, path.toString().cStr(), buf.begin(), buf.size());
+      ssize_t n = readlink(p.c_str(), buf.begin(), buf.size());
       if (n < 0) {
         int error = errno;
         switch (error) {
@@ -504,7 +516,7 @@ public:
           case EINVAL:    // not a link
             return nullptr;
           default:
-            KJ_FAIL_SYSCALL("readlinkat(fd, path)", error, path) { return nullptr; }
+            KJ_FAIL_SYSCALL("readlink(path)", error, p) { return nullptr; }
         }
       }
 
@@ -526,7 +538,8 @@ public:
     auto filename = path.toString();
     mode_t acl = has(mode, WriteMode::PRIVATE) ? 0700 : 0777;
 
-    KJ_SYSCALL_HANDLE_ERRORS(mkdirat(fd, filename.cStr(), acl)) {
+    const auto p = fs_join(fd.get_path(), filename.cStr());
+    KJ_SYSCALL_HANDLE_ERRORS(mkdir(p.c_str(), acl)) {
       case EEXIST: {
         // Apparently this path exists.
         if (!has(mode, WriteMode::MODIFY)) {
@@ -562,7 +575,7 @@ public:
           // Caller requested no throwing.
           return false;
         } else {
-          KJ_FAIL_SYSCALL("mkdirat(fd, path)", error, path);
+          KJ_FAIL_SYSCALL("mkdir(path)", error, path);
         }
     }
 
@@ -666,12 +679,13 @@ public:
       if (tryCommitReplacement(filename, fd, *tempPath, mode)) {
         return true;
       } else {
-        KJ_SYSCALL_HANDLE_ERRORS(unlinkat(fd, tempPath->cStr(), 0)) {
+        const auto p = fs_join(fd.get_path(), tempPath->cStr());
+        KJ_SYSCALL_HANDLE_ERRORS(unlink(p.c_str())) {
           case ENOENT:
             // meh
             break;
           default:
-            KJ_FAIL_SYSCALL("unlinkat(fd, tempPath, 0)", error, *tempPath);
+            KJ_FAIL_SYSCALL("unlink(tempPath, 0)", error, *tempPath);
         }
         return false;
       }
@@ -705,9 +719,10 @@ public:
     }
 
     auto filename = path.toString();
+    const auto p = fs_join(fd.get_path(), filename.cStr());
 
     int newFd;
-    KJ_SYSCALL_HANDLE_ERRORS(newFd = openat(fd, filename.cStr(), flags, acl)) {
+    KJ_SYSCALL_HANDLE_ERRORS(newFd = open(p.c_str(), flags, acl)) {
       case ENOENT:
         if (has(mode, WriteMode::CREATE)) {
           // Either:
@@ -721,8 +736,9 @@ public:
           }
 
           // Check for broken link.
+          const auto p = fs_join(fd.get_path(), filename.cStr());
           if (!has(mode, WriteMode::MODIFY) &&
-              faccessat(fd, filename.cStr(), F_OK, AT_SYMLINK_NOFOLLOW) >= 0) {
+              access(p.c_str(), F_OK) >= 0) {
             // Yep. We treat this as already-exists, which means in CREATE-only mode this is a
             // simple failure.
             return nullptr;
@@ -747,14 +763,15 @@ public:
         goto failed;
       default:
       failed:
-        KJ_FAIL_SYSCALL("openat(fd, path, O_RDWR | ...)", error, path) { return nullptr; }
+        KJ_FAIL_SYSCALL("open(path, O_RDWR | ...)", error, p) { return nullptr; }
     }
 
-    kj::AutoCloseFd result(newFd);
+    kj::AutoCloseFd result(newFd, p);
 
     return kj::mv(result);
   }
 
+  // jfs: ugh this one is weird
   bool tryCommitReplacement(StringPtr toPath, int fromDirFd, StringPtr fromPath, WriteMode mode,
                             int* errorReason = nullptr) const {
     if (has(mode, WriteMode::CREATE) && has(mode, WriteMode::MODIFY)) {

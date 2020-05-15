@@ -304,7 +304,7 @@ public:
   inline int get() const { return fd; }
 
 #if __QNX__
-  inline std::string get_path() { return path; }
+  inline std::string get_path() const { return path; }
 #endif
 
   operator bool() const = delete;
