@@ -24,6 +24,7 @@ set(kj_sources_heavy
   string-tree.c++
   time.c++
   filesystem.c++
+  filesystem-disk-qnx.c++
   filesystem-disk-unix.c++
   filesystem-disk-win32.c++
   parse/char.c++
