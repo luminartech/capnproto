@@ -681,7 +681,7 @@ public:
 
     KJ_IF_MAYBE(tempPath, createNamedTemporary(path, mode, kj::mv(tryCreate))) {
       const auto indir = kj::mv(*tempPath);
-      if (tryCommitReplacement(filename, fd, indir, mode)) {
+      if (tryCommitReplacement(filename, fd.get_path(), indir, mode)) {
         return true;
       } else {
         const auto p = fs_join(fd.get_path(), tempPath->cStr());
@@ -779,9 +779,12 @@ public:
   // jfs: ugh this one is weird
   // Maybe I can promote fromDirFd from an int to an AutoCloseFd
   // Maybe I can `getFdPath` everywhere I need to upstream and can just pass that in, excising the troublesome AutoCloseFd?
-  bool tryCommitReplacement(StringPtr toPath, const AutoCloseFd& fromDirFd, StringPtr fromPath, WriteMode mode,
+  // bool tryCommitReplacement(StringPtr toPath, const AutoCloseFd& fromDirFd, StringPtr fromPath, WriteMode mode,
+  //                           int* errorReason = nullptr) const {
+
+  bool tryCommitReplacement(StringPtr toPath, std::string fromRoot, StringPtr fromPath, WriteMode mode,
                             int* errorReason = nullptr) const {
-    std::string from = fs_join(fromDirFd.get_path(), fromPath.cStr());
+    std::string from = fs_join(fromRoot, fromPath.cStr());
     std::string to = fs_join(fd.get_path(), toPath.cStr());
     if (has(mode, WriteMode::CREATE) && has(mode, WriteMode::MODIFY)) {
       // Always clobber. Try it.
@@ -904,7 +907,7 @@ public:
       }
 
       // Start over in create-and-modify mode.
-      return tryCommitReplacement(toPath, fromDirFd, fromPath,
+      return tryCommitReplacement(toPath, fromRoot, fromPath,
                                   WriteMode::CREATE | WriteMode::MODIFY,
                                   errorReason);
     }
@@ -931,7 +934,7 @@ public:
 
     bool tryCommit() override {
       KJ_ASSERT(!committed, "already committed") { return false; }
-      return committed = handle.tryCommitReplacement(path, handle.fd, tempPath,
+      return committed = handle.tryCommitReplacement(path, handle.fd.get_path(), tempPath,
                                                      Directory::Replacer<T>::mode);
     }
 
@@ -1073,7 +1076,7 @@ public:
         KJ_ASSERT(mode == TransferMode::MOVE);
 
         int error = 0;
-        if (tryCommitReplacement(toPath.toString(), fromFd, fromPath.toString(), toMode,
+        if (tryCommitReplacement(toPath.toString(), fromDirectory.getFdPath(), fromPath.toString(), toMode,
                                  &error)) {
           return true;
         } else switch (error) {
@@ -1301,7 +1304,7 @@ private:
   static AutoCloseFd openDir(const char* dir) {
     int newFd;
     KJ_SYSCALL(newFd = open(dir, O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY));
-    AutoCloseFd result(newFd);
+    AutoCloseFd result(newFd, dir);
     return result;
   }
 

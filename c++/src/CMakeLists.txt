@@ -47,4 +47,5 @@ add_subdirectory(kj)
 
 # capnp ========================================================================
 
-add_subdirectory(capnp)
+# jfs: just kj for now
+#add_subdirectory(capnp)
