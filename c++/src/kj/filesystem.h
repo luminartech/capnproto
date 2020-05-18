@@ -318,6 +318,8 @@ public:
   // Get the underlying Unix file descriptor, if any. Returns nullptr if this object actually isn't
   // wrapping a file descriptor.
 
+  virtual std::string getFdPath() const { return ""; }
+
   virtual Maybe<void*> getWin32Handle() const { return nullptr; }
   // Get the underlying Win32 HANDLE, if any. Returns nullptr if this object actually isn't
   // wrapping a handle.

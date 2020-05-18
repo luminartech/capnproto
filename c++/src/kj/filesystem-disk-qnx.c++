@@ -189,6 +189,10 @@ public:
     return fd.get();
   }
 
+  std::string getFdPath() const {
+    return fd.get_path();
+  }
+
   // FsNode --------------------------------------------------------------------
 
   FsNode::Metadata stat() const {
@@ -676,7 +680,8 @@ public:
     // replacement instead.
 
     KJ_IF_MAYBE(tempPath, createNamedTemporary(path, mode, kj::mv(tryCreate))) {
-      if (tryCommitReplacement(filename, fd, *tempPath, mode)) {
+      const auto indir = kj::mv(*tempPath);
+      if (tryCommitReplacement(filename, fd, indir, mode)) {
         return true;
       } else {
         const auto p = fs_join(fd.get_path(), tempPath->cStr());
@@ -772,11 +777,15 @@ public:
   }
 
   // jfs: ugh this one is weird
-  bool tryCommitReplacement(StringPtr toPath, int fromDirFd, StringPtr fromPath, WriteMode mode,
+  // Maybe I can promote fromDirFd from an int to an AutoCloseFd
+  // Maybe I can `getFdPath` everywhere I need to upstream and can just pass that in, excising the troublesome AutoCloseFd?
+  bool tryCommitReplacement(StringPtr toPath, const AutoCloseFd& fromDirFd, StringPtr fromPath, WriteMode mode,
                             int* errorReason = nullptr) const {
+    std::string from = fs_join(fromDirFd.get_path(), fromPath.cStr());
+    std::string to = fs_join(fd.get_path(), toPath.cStr());
     if (has(mode, WriteMode::CREATE) && has(mode, WriteMode::MODIFY)) {
       // Always clobber. Try it.
-      KJ_SYSCALL_HANDLE_ERRORS(renameat(fromDirFd, fromPath.cStr(), fd.get(), toPath.cStr())) {
+      KJ_SYSCALL_HANDLE_ERRORS(rename(from.c_str(), to.c_str())) {
         case EISDIR:
         case ENOTDIR:
         case ENOTEMPTY:
@@ -814,10 +823,11 @@ public:
       String away;
       KJ_IF_MAYBE(awayPath, createNamedTemporary(toPathParsed, WriteMode::CREATE,
           [&](StringPtr candidatePath) {
+        const auto mkdir_path = fs_join(fd.get_path(), candidatePath.cStr());
         if (S_ISDIR(stats.st_mode)) {
-          return mkdirat(fd, candidatePath.cStr(), 0700);
+          return mkdir(mkdir_path.c_str(), 0700);
         } else {
-          return mknodat(fd, candidatePath.cStr(), S_IFREG | 0600, dev_t());
+          return mknod(mkdir_path.c_str(), S_IFREG | 0600, dev_t());
         }
       })) {
         away = kj::mv(*awayPath);
@@ -827,18 +837,26 @@ public:
       }
 
       // OK, now move the target object to replace the thing we just created.
-      KJ_SYSCALL(renameat(fd, toPath.cStr(), fd, away.cStr())) {
+      const auto old_to = fs_join(fd.get_path(), away.cStr());
+      KJ_SYSCALL(rename(to.c_str(), old_to.c_str())) {
         // Something went wrong. Remove the thing we just created.
-        unlinkat(fd, away.cStr(), S_ISDIR(stats.st_mode) ? AT_REMOVEDIR : 0);
+        if (S_ISDIR(stats.st_mode))
+        {
+          rmdir(old_to.c_str());
+        }
+        else
+        {
+          unlink(old_to.c_str());
+        }
         return false;
       }
 
       // Now move the source object to the target location.
-      KJ_SYSCALL_HANDLE_ERRORS(renameat(fromDirFd, fromPath.cStr(), fd, toPath.cStr())) {
+      KJ_SYSCALL_HANDLE_ERRORS(rename(from.c_str(), to.c_str())) {
         default:
           // Try to put things back where they were. If this fails, though, then we have little
           // choice but to leave things broken.
-          KJ_SYSCALL_HANDLE_ERRORS(renameat(fd, away.cStr(), fd, toPath.cStr())) {
+          KJ_SYSCALL_HANDLE_ERRORS(rename(old_to.c_str(), to.c_str())) {
             default: break;
           }
 
@@ -957,10 +975,11 @@ public:
     int newFd_;
     KJ_IF_MAYBE(temp, createNamedTemporary(path, mode,
         [&](StringPtr candidatePath) {
-      return newFd_ = openat(fd, candidatePath.cStr(),
-                             O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, acl);
+      const auto p = fs_join(fd.get_path(), candidatePath.cStr());
+      return newFd_ = open(p.c_str(),
+                           O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, acl);
     })) {
-      AutoCloseFd newFd(newFd_);
+      AutoCloseFd newFd(newFd_, temp->cStr());
       return heap<ReplacerImpl<File>>(newDiskFile(kj::mv(newFd)), *this, kj::mv(*temp),
                                       path.toString(), mode);
     } else {
@@ -974,11 +993,14 @@ public:
 
     KJ_IF_MAYBE(temp, createNamedTemporary(Path("unnamed"), WriteMode::CREATE,
         [&](StringPtr path) {
-      return newFd_ = openat(fd, path.cStr(), O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, 0600);
+      const auto p = fs_join(fd.get_path(), path.cStr());
+      return newFd_ = open(p.c_str(), O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, 0600);
     })) {
-      AutoCloseFd newFd(newFd_);
+      AutoCloseFd newFd(newFd_, temp->cStr());
       auto result = newDiskFile(kj::mv(newFd));
-      KJ_SYSCALL(unlinkat(fd, temp->cStr(), 0)) { break; }
+
+      const auto p = fs_join(fd.get_path(), temp->cStr());
+      KJ_SYSCALL(p.c_str(), 0) { break; }
       return kj::mv(result);
     } else {
       // threw, but exceptions are disabled
@@ -1004,17 +1026,19 @@ public:
 
     KJ_IF_MAYBE(temp, createNamedTemporary(path, mode,
         [&](StringPtr candidatePath) {
-      return mkdirat(fd, candidatePath.cStr(), acl);
+      const auto p = fs_join(fd.get_path(), candidatePath.cStr());
+      return mkdir(p.c_str(), acl);
     })) {
       int subdirFd_;
-      KJ_SYSCALL_HANDLE_ERRORS(subdirFd_ = openat(
-          fd, temp->cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+      const auto p = fs_join(fd.get_path(), temp->cStr());
+      KJ_SYSCALL_HANDLE_ERRORS(subdirFd_ = open(
+            p.c_str(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
         default:
           KJ_FAIL_SYSCALL("open(just-created-temporary)", error);
           return heap<BrokenReplacer<Directory>>(newInMemoryDirectory(nullClock()));
       }
 
-      AutoCloseFd subdirFd(subdirFd_);
+      AutoCloseFd subdirFd(subdirFd_, temp->cStr());
       return heap<ReplacerImpl<Directory>>(
           newDiskDirectory(kj::mv(subdirFd)), *this, kj::mv(*temp), path.toString(), mode);
     } else {
@@ -1025,7 +1049,8 @@ public:
 
   bool trySymlink(PathPtr linkpath, StringPtr content, WriteMode mode) const {
     return tryReplaceNode(linkpath, mode, [&](StringPtr candidatePath) {
-      return symlinkat(content.cStr(), fd, candidatePath.cStr());
+      const auto p = fs_join(fd.get_path(), candidatePath.cStr());
+      return symlink(content.cStr(), p.c_str());
     });
   }
 
@@ -1038,7 +1063,9 @@ public:
       KJ_IF_MAYBE(fromFd, fromDirectory.getFd()) {
         // Other is a disk directory, so we can hopefully do an efficient move/link.
         return tryReplaceNode(toPath, toMode, [&](StringPtr candidatePath) {
-          return linkat(*fromFd, fromPath.toString().cStr(), fd, candidatePath.cStr(), 0);
+          const auto from = fs_join(fromDirectory.getFdPath(), fromPath.toString().cStr());
+          const auto to = fs_join(fd.get_path(), candidatePath.cStr());
+          return link(from.c_str(), to.c_str());
         });
       };
     } else if (mode == TransferMode::MOVE) {
@@ -1046,7 +1073,7 @@ public:
         KJ_ASSERT(mode == TransferMode::MOVE);
 
         int error = 0;
-        if (tryCommitReplacement(toPath.toString(), *fromFd, fromPath.toString(), toMode,
+        if (tryCommitReplacement(toPath.toString(), fromFd, fromPath.toString(), toMode,
                                  &error)) {
           return true;
         } else switch (error) {
@@ -1090,15 +1117,17 @@ protected:
   AutoCloseFd fd;
 };
 
-#define FSNODE_METHODS(classname)                                   \
-  Maybe<int> getFd() const override { return DiskHandle::getFd(); } \
-                                                                    \
-  Own<const FsNode> cloneFsNode() const override {                  \
-    return heap<classname>(DiskHandle::clone());                    \
-  }                                                                 \
-                                                                    \
-  Metadata stat() const override { return DiskHandle::stat(); }     \
-  void sync() const override { DiskHandle::sync(); }                \
+#define FSNODE_METHODS(classname)                                             \
+  Maybe<int> getFd() const override { return DiskHandle::getFd(); }           \
+                                                                              \
+  std::string getFdPath() const override { return DiskHandle::getFdPath(); }  \
+                                                                              \
+  Own<const FsNode> cloneFsNode() const override {                            \
+    return heap<classname>(DiskHandle::clone());                              \
+  }                                                                           \
+                                                                              \
+  Metadata stat() const override { return DiskHandle::stat(); }               \
+  void sync() const override { DiskHandle::sync(); }                          \
   void datasync() const override { DiskHandle::datasync(); }
 
 class DiskReadableFile final: public ReadableFile, public DiskHandle {
