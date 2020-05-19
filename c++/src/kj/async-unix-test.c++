@@ -258,7 +258,7 @@ TEST(AsyncUnixTest, ReadObserver) {
 
   int pipefds[2];
   KJ_SYSCALL(pipe(pipefds));
-  kj::AutoCloseFd infd(pipefds[0]), outfd(pipefds[1]);
+  kj::AutoCloseFd infd(pipefds[0], ""), outfd(pipefds[1], "");
 
   UnixEventPort::FdObserver observer(port, infd, UnixEventPort::FdObserver::OBSERVE_READ);
 
@@ -425,7 +425,7 @@ TEST(AsyncUnixTest, WriteObserver) {
 
   int pipefds[2];
   KJ_SYSCALL(pipe(pipefds));
-  kj::AutoCloseFd infd(pipefds[0]), outfd(pipefds[1]);
+  kj::AutoCloseFd infd(pipefds[0], ""), outfd(pipefds[1], "");
   setNonblocking(outfd);
   setNonblocking(infd);
 
@@ -479,7 +479,7 @@ TEST(AsyncUnixTest, UrgentObserver) {
 
   // Spawn a TCP server
   KJ_SYSCALL(tmpFd = socket(AF_INET, SOCK_STREAM, 0));
-  kj::AutoCloseFd serverFd(tmpFd);
+  kj::AutoCloseFd serverFd(tmpFd, "");
   sockaddr_in saddr;
   memset(&saddr, 0, sizeof(saddr));
   saddr.sin_family = AF_INET;
@@ -497,7 +497,7 @@ TEST(AsyncUnixTest, UrgentObserver) {
     sockaddr_in caddr;
     socklen_t caddrLen = sizeof(caddr);
     KJ_SYSCALL(tmpFd = accept(serverFd, reinterpret_cast<sockaddr*>(&caddr), &caddrLen));
-    kj::AutoCloseFd clientFd(tmpFd);
+    kj::AutoCloseFd clientFd(tmpFd, "");
     delay();
 
     // Workaround: OS X won't signal POLLPRI without POLLIN. Also enqueue some in-band data.
@@ -512,7 +512,7 @@ TEST(AsyncUnixTest, UrgentObserver) {
   KJ_DEFER({ shutdown(serverFd, SHUT_RDWR); serverFd = nullptr; });
 
   KJ_SYSCALL(tmpFd = socket(AF_INET, SOCK_STREAM, 0));
-  kj::AutoCloseFd clientFd(tmpFd);
+  kj::AutoCloseFd clientFd(tmpFd, "");
   KJ_SYSCALL(connect(clientFd, reinterpret_cast<sockaddr*>(&saddr), saddrLen));
 
   UnixEventPort::FdObserver observer(port, clientFd,

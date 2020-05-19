@@ -228,6 +228,59 @@ public:
   }
 
   kj::Promise<void> sendFd(int fdToSend) override {
+
+#if __QNX__
+
+    // CMSG_LEN on QNX isn't a constant - it calls a function to figure out alignment
+    // So I don't know of a nice way to avoid having to allocate, so here we are
+
+    size_t cmsgSpace_size = CMSG_LEN(sizeof(int));
+    void* cmsgSpace = malloc(cmsgSpace_size);
+
+    if (cmsgSpace == NULL)
+    {
+      throw std::bad_alloc();
+    }
+
+    struct cmsghdr* cmsg = (struct cmsghdr*) cmsgSpace;
+
+    struct msghdr msg;
+    struct iovec iov;
+
+    memset(&msg, 0, sizeof(msg));
+    memset(&iov, 0, sizeof(iov));
+    memset(cmsgSpace, 0, cmsgSpace_size);
+
+    char c = 0;
+    iov.iov_base = &c;
+    iov.iov_len = 1;
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    msg.msg_control = cmsg;
+    msg.msg_controllen = cmsgSpace_size;
+
+    cmsg->cmsg_len = cmsgSpace_size;
+    cmsg->cmsg_level = SOL_SOCKET;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    *reinterpret_cast<int*>(CMSG_DATA(cmsg)) = fdToSend;
+
+    ssize_t n;
+    KJ_NONBLOCKING_SYSCALL(n = sendmsg(fd, &msg, 0));
+
+    free(cmsgSpace);
+
+    if (n < 0) {
+      return observer.whenBecomesWritable().then([this,fdToSend]() {
+                                                   return sendFd(fdToSend);
+                                                 });
+    } else {
+      KJ_ASSERT(n == 1);
+      return kj::READY_NOW;
+    }
+
+#else
+
     struct msghdr msg;
     struct iovec iov;
     union {
@@ -262,6 +315,8 @@ public:
       KJ_ASSERT(n == 1);
       return kj::READY_NOW;
     }
+
+#endif
   }
 
   Promise<void> waitConnected() {
@@ -424,6 +479,66 @@ private:
 
   template <typename T>
   kj::Promise<kj::Maybe<T>> tryReceiveFdImpl() {
+
+#if __QNX__
+
+    // CMSG_LEN on QNX isn't a constant - it calls a function to figure out alignment
+    // So I don't know of a nice way to avoid having to allocate, so here we are
+
+    size_t cmsgSpace_size = CMSG_LEN(sizeof(int));
+    void* cmsgSpace = malloc(cmsgSpace_size);
+
+    if (cmsgSpace == NULL)
+    {
+      throw std::bad_alloc();
+    }
+
+    struct cmsghdr* cmsg = (struct cmsghdr*) cmsgSpace;
+
+    struct msghdr msg;
+    memset(&msg, 0, sizeof(msg));
+
+    struct iovec iov;
+    memset(&iov, 0, sizeof(iov));
+    char c;
+    iov.iov_base = &c;
+    iov.iov_len = 1;
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    msg.msg_control = cmsg;
+    msg.msg_controllen = cmsgSpace_size;
+
+#ifdef MSG_CMSG_CLOEXEC
+    int recvmsgFlags = MSG_CMSG_CLOEXEC;
+#else
+    int recvmsgFlags = 0;
+#endif
+
+    ssize_t n;
+    KJ_NONBLOCKING_SYSCALL(n = recvmsg(fd, &msg, recvmsgFlags));
+    if (n < 0) {
+      return observer.whenBecomesReadable().then([this]() {
+        return tryReceiveFdImpl<T>();
+      });
+    } else if (n == 0) {
+      return kj::Maybe<T>(nullptr);
+    } else {
+      KJ_REQUIRE(msg.msg_controllen >= sizeof(struct cmsghdr),
+          "expected to receive FD over socket; received data instead");
+
+      // We expect an SCM_RIGHTS message with a single FD.
+      KJ_REQUIRE(cmsg->cmsg_level == SOL_SOCKET);
+      KJ_REQUIRE(cmsg->cmsg_type == SCM_RIGHTS);
+      KJ_REQUIRE(cmsg->cmsg_len == CMSG_LEN(sizeof(int)));
+
+      int receivedFd;
+      memcpy(&receivedFd, CMSG_DATA(cmsg), sizeof(receivedFd));
+      return kj::Maybe<T>(wrapFd(receivedFd, (T*)nullptr));
+    }
+
+#else
+
     struct msghdr msg;
     memset(&msg, 0, sizeof(msg));
 
@@ -470,10 +585,11 @@ private:
       memcpy(&receivedFd, CMSG_DATA(&cmsg), sizeof(receivedFd));
       return kj::Maybe<T>(wrapFd(receivedFd, (T*)nullptr));
     }
+#endif
   }
 
   AutoCloseFd wrapFd(int newFd, AutoCloseFd*) {
-    auto result = AutoCloseFd(newFd);
+    auto result = AutoCloseFd(newFd, "");
 #ifndef MSG_CMSG_CLOEXEC
     setCloseOnExec(result);
 #endif
@@ -882,7 +998,7 @@ Promise<Array<SocketAddress>> SocketAddress::lookupHost(
   LookupParams params = { kj::mv(host), kj::mv(service) };
 
   auto thread = heap<Thread>(kj::mvCapture(params, [outFd,portHint](LookupParams&& params) {
-    FdOutputStream output((AutoCloseFd(outFd)));
+    FdOutputStream output((AutoCloseFd(outFd, "")));
 
     struct addrinfo* list;
     int status = getaddrinfo(

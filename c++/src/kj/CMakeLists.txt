@@ -108,6 +108,11 @@ set(kj-test-compat_headers
 )
 add_library(kj-test ${kj-test_sources})
 add_library(CapnProto::kj-test ALIAS kj-test)
+
+if(QNXNTO)
+  target_compile_options(kj-test PRIVATE -std=c++14 -x c++)
+endif()
+
 target_link_libraries(kj-test PUBLIC kj)
 # Ensure the library has a version set to match autotools build
 set_target_properties(kj-test PROPERTIES VERSION ${VERSION})
@@ -136,6 +141,12 @@ set(kj-async_headers
 if(NOT CAPNP_LITE)
   add_library(kj-async ${kj-async_sources})
   add_library(CapnProto::kj-async ALIAS kj-async)
+
+  if(QNXNTO)
+    target_compile_options(kj-async PRIVATE -std=c++14 -x c++)
+    target_link_libraries(kj-async PUBLIC socket)
+  endif()
+
   target_link_libraries(kj-async PUBLIC kj)
   if(UNIX AND NOT QNXNTO)
     # external clients of this library need to link to pthreads
@@ -162,6 +173,11 @@ set(kj-http_headers
 if(NOT CAPNP_LITE)
   add_library(kj-http ${kj-http_sources})
   add_library(CapnProto::kj-http ALIAS kj-http)
+
+  if(QNXNTO)
+    target_compile_options(kj-http PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(kj-http PUBLIC kj-async kj)
   # Ensure the library has a version set to match autotools build
   set_target_properties(kj-http PROPERTIES VERSION ${VERSION})
@@ -180,6 +196,10 @@ set(kj-gzip_headers
 if(NOT CAPNP_LITE)
   add_library(kj-gzip ${kj-gzip_sources})
   add_library(CapnProto::kj-gzip ALIAS kj-gzip)
+
+  if(QNXNTO)
+    target_compile_options(kj-gzip PRIVATE -std=c++14 -x c++)
+  endif()
 
   find_package(ZLIB)
   if(ZLIB_FOUND)
@@ -212,6 +232,11 @@ if(BUILD_TESTING)
     test-test.c++
     std/iostream-test.c++
   )
+
+  if(QNXNTO)
+    target_compile_options(kj-tests PRIVATE -std=c++14 -x c++)
+  endif()
+
   # TODO: Link with librt on Solaris for sched_yield
   target_link_libraries(kj-tests kj-test kj)
   add_dependencies(check kj-tests)
@@ -240,6 +265,11 @@ if(BUILD_TESTING)
       compat/http-test.c++
       compat/gzip-test.c++
     )
+
+    if(QNXNTO)
+      target_compile_options(kj-heavy-tests PRIVATE -std=c++14 -x c++)
+    endif()
+
     target_link_libraries(kj-heavy-tests kj-http kj-gzip kj-async kj-test kj)
     add_dependencies(check kj-heavy-tests)
     add_test(NAME kj-heavy-tests-run COMMAND kj-heavy-tests)
