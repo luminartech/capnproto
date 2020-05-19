@@ -31,9 +31,9 @@
 #include "exception.h"
 #include <stdint.h>
 
-#if __QNX__
+// #if __QNX__
   #include <string>
-#endif
+// #endif
 
 namespace kj {
 
@@ -266,20 +266,21 @@ class AutoCloseFd {
   // have to call close() yourself and handle errors appropriately.
 
 public:
+// jfs: TODO clean this up
     inline AutoCloseFd(): fd(-1) {}
     inline AutoCloseFd(decltype(nullptr)): fd(-1) {}
-#if !__QNX__
-  inline explicit AutoCloseFd(int fd): fd(fd) {}
-  inline AutoCloseFd(AutoCloseFd&& other) noexcept: fd(other.fd) { other.fd = -1; }
+// #if !__QNX__
+//   inline explicit AutoCloseFd(int fd): fd(fd) {}
+//   inline AutoCloseFd(AutoCloseFd&& other) noexcept: fd(other.fd) { other.fd = -1; }
 
-  inline AutoCloseFd& operator=(AutoCloseFd&& other) {
-    AutoCloseFd old(kj::mv(*this));
-    fd = other.fd;
-    other.fd = -1;
-    return *this;
-  }
-#else
-  inline explicit AutoCloseFd(int fd, std::string path): fd(fd), path(path) {}
+//   inline AutoCloseFd& operator=(AutoCloseFd&& other) {
+//     AutoCloseFd old(kj::mv(*this));
+//     fd = other.fd;
+//     other.fd = -1;
+//     return *this;
+//   }
+// #else
+  inline explicit AutoCloseFd(int fd, std::string path=""): fd(fd), path(path) {}
   inline AutoCloseFd(AutoCloseFd&& other) noexcept: fd(other.fd), path(other.path) { other.fd = -1; other.path = ""; }
 
   inline AutoCloseFd& operator=(AutoCloseFd&& other) {
@@ -290,7 +291,7 @@ public:
     other.path = "";
     return *this;
   }
-#endif
+// #endif
 
   KJ_DISALLOW_COPY(AutoCloseFd);
   ~AutoCloseFd() noexcept(false);
@@ -303,9 +304,9 @@ public:
   inline operator int() const { return fd; }
   inline int get() const { return fd; }
 
-#if __QNX__
+// #if __QNX__
   inline std::string get_path() const { return path; }
-#endif
+// #endif
 
   operator bool() const = delete;
   // Deleting this operator prevents accidental use in boolean contexts, which
@@ -318,9 +319,9 @@ public:
     // Release ownership of an FD. Not recommended.
     int result = fd;
     fd = -1;
-#if __QNX__
+// #if __QNX__
     path = "";
-#endif
+// #endif
     return result;
   }
 
@@ -328,9 +329,9 @@ private:
   int fd;
   UnwindDetector unwindDetector;
 
-#if __QNX__
+// #if __QNX__
     std::string path;
-#endif
+// #endif
 
 };
 

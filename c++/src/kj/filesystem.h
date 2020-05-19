@@ -28,6 +28,8 @@
 #include "function.h"
 #include "hash.h"
 
+#include <string>
+
 namespace kj {
 
 template <typename T>
