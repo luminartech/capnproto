@@ -18,7 +18,11 @@ rm -rf build
 mkdir build
 cd build
 
-cmake -G "Unix Makefiles" .. -DCMAKE_PREFIX_PATH:PATH=${LDK_QNX_INSTALL_FOLDER} -DCMAKE_INSTALL_PREFIX:PATH=${LDK_QNX_INSTALL_FOLDER} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/aarch64/qnx/gcc/toolchain_aarch64_qnx_gcc.cmake
+cmake -G "Unix Makefiles" ..                                                             \
+ -DCMAKE_PREFIX_PATH:PATH=${LDK_QNX_INSTALL_FOLDER}                                      \
+ -DCMAKE_INSTALL_PREFIX:PATH=${LDK_QNX_INSTALL_FOLDER}                                   \
+ -DCMAKE_BUILD_TYPE=Release                                                              \
+ -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/aarch64/qnx/gcc/toolchain_aarch64_qnx_gcc.cmake \
+ -DBUILD_TESTING=OFF # off until I figure out what's up with capnp_tool
 
-# cmake --build . --target install -- -j "${LUMPDK_NPROC:-$(($(nproc) + 2))}"
-cmake --build . --target install
+cmake --build . --target install -- -j "${LUMPDK_NPROC:-$(($(nproc) + 2))}"

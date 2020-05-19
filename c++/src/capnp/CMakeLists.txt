@@ -58,6 +58,11 @@ set(capnp_schemas
 )
 add_library(capnp ${capnp_sources})
 add_library(CapnProto::capnp ALIAS capnp)
+
+if(QNXNTO)
+  target_compile_options(capnp PRIVATE -std=c++14 -x c++)
+endif()
+
 target_link_libraries(capnp PUBLIC kj)
 #make sure external consumers don't need to manually set the include dirs
 target_include_directories(capnp INTERFACE
@@ -98,6 +103,11 @@ set(capnp-rpc_schemas
 if(NOT CAPNP_LITE)
   add_library(capnp-rpc ${capnp-rpc_sources})
   add_library(CapnProto::capnp-rpc ALIAS capnp-rpc)
+
+  if(QNXNTO)
+    target_compile_options(capnp-rpc PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(capnp-rpc PUBLIC capnp kj-async kj)
   # Ensure the library has a version set to match autotools build
   set_target_properties(capnp-rpc PROPERTIES VERSION ${VERSION})
@@ -121,6 +131,11 @@ set(capnp-json_schemas
 if(NOT CAPNP_LITE)
   add_library(capnp-json ${capnp-json_sources})
   add_library(CapnProto::capnp-json ALIAS capnp-json)
+
+  if(QNXNTO)
+    target_compile_options(capnp-json PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(capnp-json PUBLIC capnp kj-async kj)
   # Ensure the library has a version set to match autotools build
   set_target_properties(capnp-json PROPERTIES VERSION ${VERSION})
@@ -144,6 +159,11 @@ set(capnpc_sources
 )
 if(NOT CAPNP_LITE)
   add_library(capnpc ${capnpc_sources})
+
+  if(QNXNTO)
+    target_compile_options(capnpc PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(capnpc PUBLIC capnp kj)
   # Ensure the library has a version set to match autotools build
   set_target_properties(capnpc PROPERTIES VERSION ${VERSION})
@@ -156,6 +176,11 @@ if(NOT CAPNP_LITE)
     compiler/module-loader.c++
     compiler/capnp.c++
   )
+
+  if(QNXNTO)
+    target_compile_options(capnp_tool PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(capnp_tool capnpc capnp-json capnp kj)
   set_target_properties(capnp_tool PROPERTIES OUTPUT_NAME capnp)
   set_target_properties(capnp_tool PROPERTIES CAPNP_INCLUDE_DIRECTORY
@@ -165,6 +190,11 @@ if(NOT CAPNP_LITE)
   add_executable(capnpc_cpp
     compiler/capnpc-c++.c++
   )
+
+  if(QNXNTO)
+    target_compile_options(capnpc_cpp PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(capnpc_cpp capnp kj)
   set_target_properties(capnpc_cpp PROPERTIES OUTPUT_NAME capnpc-c++)
   #Capnp tool needs capnpc_cpp location. But cmake deprecated LOCATION property.
@@ -176,6 +206,11 @@ if(NOT CAPNP_LITE)
   add_executable(capnpc_capnp
     compiler/capnpc-capnp.c++
   )
+
+  if(QNXNTO)
+    target_compile_options(capnpc_capnp PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(capnpc_capnp capnp kj)
   set_target_properties(capnpc_capnp PROPERTIES OUTPUT_NAME capnpc-capnp)
 
@@ -236,7 +271,13 @@ if(BUILD_TESTING)
     ${test_capnp_cpp_files}
     ${test_capnp_h_files}
   )
+
+  if(QNXNTO)
+    target_compile_options(capnp-tests PRIVATE -std=c++14 -x c++)
+  endif()
+
   target_link_libraries(capnp-tests ${test_libraries})
+
   add_dependencies(capnp-tests test_capnp)
   add_dependencies(check capnp-tests)
   add_test(NAME capnp-tests-run COMMAND capnp-tests)
@@ -263,6 +304,11 @@ if(BUILD_TESTING)
       ${test_capnp_cpp_files}
       ${test_capnp_h_files}
     )
+
+    if(QNXNTO)
+      target_compile_options(capnp-heavy-tests PRIVATE -std=c++14 -x c++)
+    endif()
+
     target_link_libraries(capnp-heavy-tests ${test_libraries})
     if(NOT MSVC)
       set_target_properties(capnp-heavy-tests
@@ -275,6 +321,11 @@ if(BUILD_TESTING)
     add_test(NAME capnp-heavy-tests-run COMMAND capnp-heavy-tests)
 
     add_executable(capnp-evolution-tests compiler/evolution-test.c++)
+
+    if(QNXNTO)
+      target_compile_options(capnp-evolution-tests PRIVATE -std=c++14 -x c++)
+    endif()
+
     target_link_libraries(capnp-evolution-tests capnpc capnp kj)
     add_dependencies(check capnp-evolution-tests)
     add_test(NAME capnp-evolution-tests-run COMMAND capnp-evolution-tests)
