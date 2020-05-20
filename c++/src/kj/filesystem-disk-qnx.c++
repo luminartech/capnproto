@@ -1,4 +1,28 @@
-// TODO: copyright
+// Copyright (c) 2015 Sandstorm Development Group, Inc. and contributors
+// Licensed under the MIT License:
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+/// Copyright (c) 2020, Luminar Technologies, Inc.
+/// This material contains confidential and trade secret information of Luminar
+/// Technologies. Reproduction, adaptation, and distribution are prohibited,
+/// except to the extent expressly permitted in writing by Luminar Technologies.
 
 #if __QNX__
 
@@ -23,6 +47,7 @@ namespace {
   kj::StringPtr fs_join(kj::StringPtr path, kj::StringPtr child)
   {
     bool add_separator = *path.end() == '/';
+
     size_t joined_size =  add_separator ? path.size() + child.size() + 2 : path.size() + child.size() + 1;
     char* joined = (char*) malloc(joined_size);
 
@@ -113,14 +138,13 @@ static FsNode::Metadata statToMetadata(struct stat& stats) {
   };
 }
 
-static bool rmrf(StringPtr root, StringPtr path);
+static bool rmrf(int fd, StringPtr root, StringPtr path);
 
-static void rmrfChildrenAndClose(StringPtr path) {
+static void rmrfChildrenAndClose(int fd, StringPtr path) {
 
   DIR* dir = opendir(path.cStr());
   if (dir == nullptr) {
-    // jfs: will this leak a file handle?
-    //close(fd);
+    close(fd);
     KJ_FAIL_SYSCALL("opendir", errno);
   };
   KJ_DEFER(closedir(dir));
@@ -143,12 +167,14 @@ static void rmrfChildrenAndClose(StringPtr path) {
           entry->d_name[2] == '\0'))) {
       // ignore . and ..
     } else {
-        KJ_ASSERT(rmrf(path, entry->d_name));
+
+      String n = kj::heapString(entry->d_name);
+      KJ_ASSERT(rmrf(fd, path, StringPtr(n)));
     }
   }
 }
 
-static bool rmrf(StringPtr root, StringPtr path) {
+static bool rmrf(int fd, StringPtr root, StringPtr path) {
 
   StringPtr p = fs_join(root, path);
   struct stat stats;
@@ -158,11 +184,14 @@ static bool rmrf(StringPtr root, StringPtr path) {
       // Doesn't exist.
       return false;
     default:
-      KJ_FAIL_SYSCALL("fstatat(path)", error, p.cStr()) { return false; }
+      KJ_FAIL_SYSCALL("stat(path)", error, p.cStr()) { return false; }
   }
 
   if (S_ISDIR(stats.st_mode)) {
-    rmrfChildrenAndClose(p);
+    int subdirFd;
+    KJ_SYSCALL(subdirFd = open(
+                 p.cStr(), O_RDONLY | MAYBE_O_DIRECTORY | MAYBE_O_CLOEXEC));
+    rmrfChildrenAndClose(subdirFd, p);
     KJ_SYSCALL(rmdir(p.cStr())) { return false; }
   } else {
     KJ_SYSCALL(unlink(p.cStr())) { return false; }
@@ -931,7 +960,7 @@ public:
       }
 
       // OK, success. Delete the old content.
-      rmrf(fd.get_path(), away);
+      rmrf(fd, fd.get_path(), away);
       return true;
     } else {
       // Only one of CREATE or MODIFY is specified, so we need to verify non-atomically that the
@@ -981,7 +1010,7 @@ public:
 
     ~ReplacerImpl() noexcept(false) {
       if (!committed) {
-        rmrf(handle.getFdPath(), tempPath);
+        rmrf(handle.getFd(), handle.getFdPath(), tempPath);
       }
     }
 
@@ -1170,7 +1199,7 @@ public:
   }
 
   bool tryRemove(PathPtr path) const {
-    return rmrf(fd.get_path(), path.toString());
+    return rmrf(fd, fd.get_path(), path.toString());
   }
 
 protected:
