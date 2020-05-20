@@ -22,7 +22,7 @@
 
 namespace {
 
-  std::string fs_join(std::string path, std::string child)
+  StringPtr fs_join(StringPtr path, StringPtr child)
   {
     if (path.back() == '/')
     {
@@ -189,7 +189,7 @@ public:
     return fd.get();
   }
 
-  std::string getFdPath() const {
+  StringPtr getFdPath() const {
     return fd.get_path();
   }
 
@@ -782,10 +782,10 @@ public:
   // bool tryCommitReplacement(StringPtr toPath, const AutoCloseFd& fromDirFd, StringPtr fromPath, WriteMode mode,
   //                           int* errorReason = nullptr) const {
 
-  bool tryCommitReplacement(StringPtr toPath, std::string fromRoot, StringPtr fromPath, WriteMode mode,
+  bool tryCommitReplacement(StringPtr toPath, StringPtr fromRoot, StringPtr fromPath, WriteMode mode,
                             int* errorReason = nullptr) const {
-    std::string from = fs_join(fromRoot, fromPath.cStr());
-    std::string to = fs_join(fd.get_path(), toPath.cStr());
+    StringPtr from = fs_join(fromRoot, fromPath.cStr());
+    StringPtr to = fs_join(fd.get_path(), toPath.cStr());
     if (has(mode, WriteMode::CREATE) && has(mode, WriteMode::MODIFY)) {
       // Always clobber. Try it.
       KJ_SYSCALL_HANDLE_ERRORS(rename(from.c_str(), to.c_str())) {
@@ -1123,7 +1123,7 @@ protected:
 #define FSNODE_METHODS(classname)                                             \
   Maybe<int> getFd() const override { return DiskHandle::getFd(); }           \
                                                                               \
-  std::string getFdPath() const override { return DiskHandle::getFdPath(); }  \
+  StringPtr getFdPath() const override { return DiskHandle::getFdPath(); }  \
                                                                               \
   Own<const FsNode> cloneFsNode() const override {                            \
     return heap<classname>(DiskHandle::clone());                              \
