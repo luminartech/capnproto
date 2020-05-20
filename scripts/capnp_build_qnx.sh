@@ -12,7 +12,7 @@ if [[ -z "${LDK_QNX_INSTALL_FOLDER}" ]]; then
     exit 1
 fi
 
-if [[ $# -eq 3 ]]; then
+if [[ $# -ne 2 ]]; then
     echo "You must specify a build type (Release, Debug) and a toolchain file!"
     exit 1
 fi
@@ -28,6 +28,6 @@ cmake -G "Unix Makefiles" ..                                                    
  -DCMAKE_INSTALL_PREFIX:PATH=${LDK_QNX_INSTALL_FOLDER}                                   \
  -DCMAKE_BUILD_TYPE="$1"                                                                 \
  -DCMAKE_TOOLCHAIN_FILE="$2"                                                             \
- -DBUILD_TESTING=OFF # off until I figure out what's up with capnp_tool
+ -DBUILD_TESTING=OFF # off until I figure out what's up with capnp_tool and some of the message generation that happens with testing on
 
 cmake --build . --target install -- -j "${LUMPDK_NPROC:-$(($(nproc) + 2))}"

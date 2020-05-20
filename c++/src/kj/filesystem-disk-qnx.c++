@@ -18,18 +18,32 @@
 #include "miniposix.h"
 #include <algorithm>
 
-#include <cassert>
-
 namespace {
 
-  StringPtr fs_join(StringPtr path, StringPtr child)
+  kj::StringPtr fs_join(kj::StringPtr path, kj::StringPtr child)
   {
-    if (path.back() == '/')
+    bool add_separator = *path.end() == '/';
+    size_t joined_size =  add_separator ? path.size() + child.size() + 2 : path.size() + child.size() + 1;
+    char* joined = (char*) malloc(joined_size);
+
+    if (!joined)
     {
-      return path + child;
+      return kj::StringPtr(nullptr);
     }
 
-    return path + '/' + child;
+    memset(joined, 0, joined_size);
+
+    strcpy(joined, path.cStr());
+
+    if (add_separator)
+    {
+      char sep = '/';
+      strcat(joined, &sep);
+    }
+
+    strcat(joined, child.cStr());
+
+    return kj::StringPtr(joined);
   }
 }
 
@@ -99,17 +113,60 @@ static FsNode::Metadata statToMetadata(struct stat& stats) {
   };
 }
 
-// TODO: update all of these to no longer take fd params
-static bool rmrf(int fd, StringPtr path);
+static bool rmrf(StringPtr root, StringPtr path);
 
-static void rmrfChildrenAndClose(int fd) {
+static void rmrfChildrenAndClose(StringPtr path) {
 
-  assert(false);
+  DIR* dir = opendir(path.cStr());
+  if (dir == nullptr) {
+    // jfs: will this leak a file handle?
+    //close(fd);
+    KJ_FAIL_SYSCALL("opendir", errno);
+  };
+  KJ_DEFER(closedir(dir));
+
+  for (;;) {
+    errno = 0;
+    struct dirent* entry = readdir(dir);
+    if (entry == nullptr) {
+      int error = errno;
+      if (error == 0) {
+        break;
+      } else {
+        KJ_FAIL_SYSCALL("readdir", error);
+      }
+    }
+
+    if (entry->d_name[0] == '.' &&
+        (entry->d_name[1] == '\0' ||
+         (entry->d_name[1] == '.' &&
+          entry->d_name[2] == '\0'))) {
+      // ignore . and ..
+    } else {
+        KJ_ASSERT(rmrf(path, entry->d_name));
+    }
+  }
 }
 
-static bool rmrf(int fd, StringPtr path) {
+static bool rmrf(StringPtr root, StringPtr path) {
 
-  assert(false);
+  StringPtr p = fs_join(root, path);
+  struct stat stats;
+  KJ_SYSCALL_HANDLE_ERRORS(stat(p.cStr(), &stats)) {
+    case ENOENT:
+    case ENOTDIR:
+      // Doesn't exist.
+      return false;
+    default:
+      KJ_FAIL_SYSCALL("fstatat(path)", error, p.cStr()) { return false; }
+  }
+
+  if (S_ISDIR(stats.st_mode)) {
+    rmrfChildrenAndClose(p);
+    KJ_SYSCALL(rmdir(p.cStr())) { return false; }
+  } else {
+    KJ_SYSCALL(unlink(p.cStr())) { return false; }
+  }
 
   return true;
 }
@@ -388,7 +445,7 @@ public:
     // Seek to start of directory.
     KJ_SYSCALL(lseek(fd, 0, SEEK_SET));
 
-    const auto p = fd.get_path().c_str();
+    const auto p = fd.get_path().cStr();
     DIR* dir = opendir(p);
 
     KJ_DEFER(closedir(dir));
@@ -437,7 +494,7 @@ public:
 
   bool exists(PathPtr path) const {
     const auto p = fs_join(fd.get_path(), path.toString().cStr());
-    KJ_SYSCALL_HANDLE_ERRORS(access(p.c_str(), F_OK)) {
+    KJ_SYSCALL_HANDLE_ERRORS(access(p.cStr(), F_OK)) {
       case ENOENT:
       case ENOTDIR:
         return false;
@@ -463,7 +520,7 @@ public:
     int newFd;
     const auto p = fs_join(fd.get_path(), path.toString().cStr());
     KJ_SYSCALL_HANDLE_ERRORS(newFd = open(
-                               p.c_str(), O_RDONLY | MAYBE_O_CLOEXEC)) {
+                               p.cStr(), O_RDONLY | MAYBE_O_CLOEXEC)) {
       case ENOENT:
       case ENOTDIR:
         return nullptr;
@@ -480,7 +537,7 @@ public:
     int newFd;
     const auto p = fs_join(fd.get_path(), path.toString().cStr());
     KJ_SYSCALL_HANDLE_ERRORS(newFd = open(
-                               p.c_str(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+                               p.cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
       case ENOENT:
         return nullptr;
       case ENOTDIR:
@@ -509,7 +566,7 @@ public:
     size_t trySize = 256;
     for (;;) {
       KJ_STACK_ARRAY(char, buf, trySize, 256, 4096);
-      ssize_t n = readlink(p.c_str(), buf.begin(), buf.size());
+      ssize_t n = readlink(p.cStr(), buf.begin(), buf.size());
       if (n < 0) {
         int error = errno;
         switch (error) {
@@ -543,7 +600,7 @@ public:
     mode_t acl = has(mode, WriteMode::PRIVATE) ? 0700 : 0777;
 
     const auto p = fs_join(fd.get_path(), filename.cStr());
-    KJ_SYSCALL_HANDLE_ERRORS(mkdir(p.c_str(), acl)) {
+    KJ_SYSCALL_HANDLE_ERRORS(mkdir(p.cStr(), acl)) {
       case EEXIST: {
         // Apparently this path exists.
         if (!has(mode, WriteMode::MODIFY)) {
@@ -685,7 +742,7 @@ public:
         return true;
       } else {
         const auto p = fs_join(fd.get_path(), tempPath->cStr());
-        KJ_SYSCALL_HANDLE_ERRORS(unlink(p.c_str())) {
+        KJ_SYSCALL_HANDLE_ERRORS(unlink(p.cStr())) {
           case ENOENT:
             // meh
             break;
@@ -727,7 +784,7 @@ public:
     const auto p = fs_join(fd.get_path(), filename.cStr());
 
     int newFd;
-    KJ_SYSCALL_HANDLE_ERRORS(newFd = open(p.c_str(), flags, acl)) {
+    KJ_SYSCALL_HANDLE_ERRORS(newFd = open(p.cStr(), flags, acl)) {
       case ENOENT:
         if (has(mode, WriteMode::CREATE)) {
           // Either:
@@ -743,7 +800,7 @@ public:
           // Check for broken link.
           const auto p = fs_join(fd.get_path(), filename.cStr());
           if (!has(mode, WriteMode::MODIFY) &&
-              access(p.c_str(), F_OK) >= 0) {
+              access(p.cStr(), F_OK) >= 0) {
             // Yep. We treat this as already-exists, which means in CREATE-only mode this is a
             // simple failure.
             return nullptr;
@@ -788,7 +845,7 @@ public:
     StringPtr to = fs_join(fd.get_path(), toPath.cStr());
     if (has(mode, WriteMode::CREATE) && has(mode, WriteMode::MODIFY)) {
       // Always clobber. Try it.
-      KJ_SYSCALL_HANDLE_ERRORS(rename(from.c_str(), to.c_str())) {
+      KJ_SYSCALL_HANDLE_ERRORS(rename(from.cStr(), to.cStr())) {
         case EISDIR:
         case ENOTDIR:
         case ENOTEMPTY:
@@ -828,9 +885,9 @@ public:
           [&](StringPtr candidatePath) {
         const auto mkdir_path = fs_join(fd.get_path(), candidatePath.cStr());
         if (S_ISDIR(stats.st_mode)) {
-          return mkdir(mkdir_path.c_str(), 0700);
+          return mkdir(mkdir_path.cStr(), 0700);
         } else {
-          return mknod(mkdir_path.c_str(), S_IFREG | 0600, dev_t());
+          return mknod(mkdir_path.cStr(), S_IFREG | 0600, dev_t());
         }
       })) {
         away = kj::mv(*awayPath);
@@ -841,25 +898,25 @@ public:
 
       // OK, now move the target object to replace the thing we just created.
       const auto old_to = fs_join(fd.get_path(), away.cStr());
-      KJ_SYSCALL(rename(to.c_str(), old_to.c_str())) {
+      KJ_SYSCALL(rename(to.cStr(), old_to.cStr())) {
         // Something went wrong. Remove the thing we just created.
         if (S_ISDIR(stats.st_mode))
         {
-          rmdir(old_to.c_str());
+          rmdir(old_to.cStr());
         }
         else
         {
-          unlink(old_to.c_str());
+          unlink(old_to.cStr());
         }
         return false;
       }
 
       // Now move the source object to the target location.
-      KJ_SYSCALL_HANDLE_ERRORS(rename(from.c_str(), to.c_str())) {
+      KJ_SYSCALL_HANDLE_ERRORS(rename(from.cStr(), to.cStr())) {
         default:
           // Try to put things back where they were. If this fails, though, then we have little
           // choice but to leave things broken.
-          KJ_SYSCALL_HANDLE_ERRORS(rename(old_to.c_str(), to.c_str())) {
+          KJ_SYSCALL_HANDLE_ERRORS(rename(old_to.cStr(), to.cStr())) {
             default: break;
           }
 
@@ -874,7 +931,7 @@ public:
       }
 
       // OK, success. Delete the old content.
-      rmrf(fd, away);
+      rmrf(fd.get_path(), away);
       return true;
     } else {
       // Only one of CREATE or MODIFY is specified, so we need to verify non-atomically that the
@@ -924,7 +981,7 @@ public:
 
     ~ReplacerImpl() noexcept(false) {
       if (!committed) {
-        rmrf(handle.fd, tempPath);
+        rmrf(handle.getFdPath(), tempPath);
       }
     }
 
@@ -979,7 +1036,7 @@ public:
     KJ_IF_MAYBE(temp, createNamedTemporary(path, mode,
         [&](StringPtr candidatePath) {
       const auto p = fs_join(fd.get_path(), candidatePath.cStr());
-      return newFd_ = open(p.c_str(),
+      return newFd_ = open(p.cStr(),
                            O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, acl);
     })) {
       AutoCloseFd newFd(newFd_, temp->cStr());
@@ -997,13 +1054,13 @@ public:
     KJ_IF_MAYBE(temp, createNamedTemporary(Path("unnamed"), WriteMode::CREATE,
         [&](StringPtr path) {
       const auto p = fs_join(fd.get_path(), path.cStr());
-      return newFd_ = open(p.c_str(), O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, 0600);
+      return newFd_ = open(p.cStr(), O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, 0600);
     })) {
       AutoCloseFd newFd(newFd_, temp->cStr());
       auto result = newDiskFile(kj::mv(newFd));
 
       const auto p = fs_join(fd.get_path(), temp->cStr());
-      KJ_SYSCALL(p.c_str(), 0) { break; }
+      KJ_SYSCALL(p.cStr(), 0) { break; }
       return kj::mv(result);
     } else {
       // threw, but exceptions are disabled
@@ -1030,12 +1087,12 @@ public:
     KJ_IF_MAYBE(temp, createNamedTemporary(path, mode,
         [&](StringPtr candidatePath) {
       const auto p = fs_join(fd.get_path(), candidatePath.cStr());
-      return mkdir(p.c_str(), acl);
+      return mkdir(p.cStr(), acl);
     })) {
       int subdirFd_;
       const auto p = fs_join(fd.get_path(), temp->cStr());
       KJ_SYSCALL_HANDLE_ERRORS(subdirFd_ = open(
-            p.c_str(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+            p.cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
         default:
           KJ_FAIL_SYSCALL("open(just-created-temporary)", error);
           return heap<BrokenReplacer<Directory>>(newInMemoryDirectory(nullClock()));
@@ -1053,7 +1110,7 @@ public:
   bool trySymlink(PathPtr linkpath, StringPtr content, WriteMode mode) const {
     return tryReplaceNode(linkpath, mode, [&](StringPtr candidatePath) {
       const auto p = fs_join(fd.get_path(), candidatePath.cStr());
-      return symlink(content.cStr(), p.c_str());
+      return symlink(content.cStr(), p.cStr());
     });
   }
 
@@ -1068,7 +1125,7 @@ public:
         return tryReplaceNode(toPath, toMode, [&](StringPtr candidatePath) {
           const auto from = fs_join(fromDirectory.getFdPath(), fromPath.toString().cStr());
           const auto to = fs_join(fd.get_path(), candidatePath.cStr());
-          return link(from.c_str(), to.c_str());
+          return link(from.cStr(), to.cStr());
         });
       };
     } else if (mode == TransferMode::MOVE) {
@@ -1113,7 +1170,7 @@ public:
   }
 
   bool tryRemove(PathPtr path) const {
-    return rmrf(fd, path.toString());
+    return rmrf(fd.get_path(), path.toString());
   }
 
 protected:
