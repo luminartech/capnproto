@@ -211,7 +211,7 @@ static Own<File> newTempFile() {
   int fd;
   KJ_SYSCALL(fd = mkstemp(filename));
   KJ_DEFER(KJ_SYSCALL(unlink(filename)));
-  return newDiskFile(AutoCloseFd(fd, ""));
+  return newDiskFile(AutoCloseFd(fd));
 }
 
 class TempDir {
@@ -225,7 +225,7 @@ public:
   Own<Directory> get() {
     int fd;
     KJ_SYSCALL(fd = open(filename.cStr(), O_RDONLY));
-    return newDiskDirectory(AutoCloseFd(fd, ""));
+    return newDiskDirectory(AutoCloseFd(fd));
   }
 
   ~TempDir() noexcept(false) {

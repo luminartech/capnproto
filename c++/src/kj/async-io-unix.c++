@@ -19,6 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+/// Copyright (c) 2020, Luminar Technologies, Inc.
+/// This material contains confidential and trade secret information of Luminar
+/// Technologies. Reproduction, adaptation, and distribution are prohibited,
+/// except to the extent expressly permitted in writing by Luminar Technologies.
+
 #if !_WIN32
 // For Win32 implementation, see async-io-win32.c++.
 
@@ -589,7 +594,7 @@ private:
   }
 
   AutoCloseFd wrapFd(int newFd, AutoCloseFd*) {
-    auto result = AutoCloseFd(newFd, "");
+    auto result = AutoCloseFd(newFd);
 #ifndef MSG_CMSG_CLOEXEC
     setCloseOnExec(result);
 #endif
@@ -998,7 +1003,7 @@ Promise<Array<SocketAddress>> SocketAddress::lookupHost(
   LookupParams params = { kj::mv(host), kj::mv(service) };
 
   auto thread = heap<Thread>(kj::mvCapture(params, [outFd,portHint](LookupParams&& params) {
-    FdOutputStream output((AutoCloseFd(outFd, "")));
+    FdOutputStream output((AutoCloseFd(outFd)));
 
     struct addrinfo* list;
     int status = getaddrinfo(
