@@ -1,0 +1,726 @@
+22c22,25
+< #if !_WIN32 && !__QNX__
+---
+> /// Copyright (c) 2020, Luminar Technologies, Inc.
+> /// This material contains confidential and trade secret information of Luminar
+> /// Technologies. Reproduction, adaptation, and distribution are prohibited,
+> /// except to the extent expressly permitted in writing by Luminar Technologies.
+24,26c27
+< #ifndef _GNU_SOURCE
+< #define _GNU_SOURCE
+< #endif
+---
+> #if __QNX__
+44,48c45,73
+< #if __linux__
+< #include <syscall.h>
+< #include <linux/fs.h>
+< #include <sys/sendfile.h>
+< #endif
+---
+> namespace {
+> 
+>   kj::StringPtr fs_join(kj::StringPtr path, kj::StringPtr child)
+>   {
+>     bool add_separator = *path.end() == '/';
+> 
+>     size_t joined_size =  add_separator ? path.size() + child.size() + 2 : path.size() + child.size() + 1;
+>     char* joined = (char*) malloc(joined_size);
+> 
+>     if (!joined)
+>     {
+>       return kj::StringPtr(nullptr);
+>     }
+> 
+>     memset(joined, 0, joined_size);
+> 
+>     strcpy(joined, path.cStr());
+> 
+>     if (add_separator)
+>     {
+>       char sep = '/';
+>       strcat(joined, &sep);
+>     }
+> 
+>     strcat(joined, child.cStr());
+> 
+>     return kj::StringPtr(joined);
+>   }
+> }
+58d82
+< #ifdef O_CLOEXEC
+60,62d83
+< #else
+< #define MAYBE_O_CLOEXEC 0
+< #endif
+64,66c85
+< #ifdef O_DIRECTORY
+< #define MAYBE_O_DIRECTORY O_DIRECTORY
+< #else
+---
+> // No `O_DIRECTORY` on QNX 7
+68,78d86
+< #endif
+< 
+< #if __APPLE__
+< // Mac OSX defines SEEK_HOLE, but it doesn't work. ("Inappropriate ioctl for device", it says.)
+< #undef SEEK_HOLE
+< #endif
+< 
+< #if __BIONIC__
+< // No no DTTOIF function
+< #undef DT_UNKNOWN
+< #endif
+87,88d94
+< #ifdef FIOCLEX
+<   // Yay, we can set the flag in one call.
+100,111d105
+< #endif
+< 
+<   // Sadness, we must resort to read/modify/write.
+<   //
+<   // (On many platforms, FD_CLOEXEC is the only flag modifiable via F_SETFD and therefore we could
+<   // skip the read... but it seems dangerous to assume that's true of all platforms, and anyway
+<   // most platforms support FIOCLEX.)
+<   int flags;
+<   KJ_SYSCALL(flags = fcntl(fd, F_GETFD));
+<   if (!(flags & FD_CLOEXEC)) {
+<     KJ_SYSCALL(fcntl(fd, F_SETFD, flags | FD_CLOEXEC));
+<   }
+141,143d134
+< #if __APPLE__
+<     toKjDate(stats.st_mtimespec),
+< #else
+145d135
+< #endif
+151c141
+< static bool rmrf(int fd, StringPtr path);
+---
+> static bool rmrf(int fd, StringPtr root, StringPtr path);
+153,154c143
+< static void rmrfChildrenAndClose(int fd) {
+<   // Assumes fd is seeked to beginning.
+---
+> static void rmrfChildrenAndClose(int fd, StringPtr path) {
+156c145
+<   DIR* dir = fdopendir(fd);
+---
+>   DIR* dir = opendir(path.cStr());
+159c148
+<     KJ_FAIL_SYSCALL("fdopendir", errno);
+---
+>     KJ_FAIL_SYSCALL("opendir", errno);
+181,195c170,172
+< #ifdef DT_UNKNOWN    // d_type is not available on all platforms.
+<       if (entry->d_type == DT_DIR) {
+<         int subdirFd;
+<         KJ_SYSCALL(subdirFd = openat(
+<             fd, entry->d_name, O_RDONLY | MAYBE_O_DIRECTORY | MAYBE_O_CLOEXEC));
+<         rmrfChildrenAndClose(subdirFd);
+<         KJ_SYSCALL(unlinkat(fd, entry->d_name, AT_REMOVEDIR));
+<       } else if (entry->d_type != DT_UNKNOWN) {
+<         KJ_SYSCALL(unlinkat(fd, entry->d_name, 0));
+<       } else {
+< #endif
+<         KJ_ASSERT(rmrf(fd, entry->d_name));
+< #ifdef DT_UNKNOWN
+<       }
+< #endif
+---
+> 
+>       String n = kj::heapString(entry->d_name);
+>       KJ_ASSERT(rmrf(fd, path, StringPtr(n)));
+200c177,179
+< static bool rmrf(int fd, StringPtr path) {
+---
+> static bool rmrf(int fd, StringPtr root, StringPtr path) {
+> 
+>   StringPtr p = fs_join(root, path);
+202c181
+<   KJ_SYSCALL_HANDLE_ERRORS(fstatat(fd, path.cStr(), &stats, AT_SYMLINK_NOFOLLOW)) {
+---
+>   KJ_SYSCALL_HANDLE_ERRORS(stat(p.cStr(), &stats)) {
+208c187
+<       KJ_FAIL_SYSCALL("lstat(path)", error, path) { return false; }
+---
+>       KJ_FAIL_SYSCALL("stat(path)", error, p.cStr()) { return false; }
+213,216c192,195
+<     KJ_SYSCALL(subdirFd = openat(
+<         fd, path.cStr(), O_RDONLY | MAYBE_O_DIRECTORY | MAYBE_O_CLOEXEC)) { return false; }
+<     rmrfChildrenAndClose(subdirFd);
+<     KJ_SYSCALL(unlinkat(fd, path.cStr(), AT_REMOVEDIR)) { return false; }
+---
+>     KJ_SYSCALL(subdirFd = open(
+>                  p.cStr(), O_RDONLY | MAYBE_O_DIRECTORY | MAYBE_O_CLOEXEC));
+>     rmrfChildrenAndClose(subdirFd, p);
+>     KJ_SYSCALL(rmdir(p.cStr())) { return false; }
+218c197
+<     KJ_SYSCALL(unlinkat(fd, path.cStr(), 0)) { return false; }
+---
+>     KJ_SYSCALL(unlink(p.cStr())) { return false; }
+277d255
+< #ifdef F_DUPFD_CLOEXEC
+287c265
+<       return AutoCloseFd(fd2);
+---
+>       return AutoCloseFd(fd2, fd.get_path());
+289d266
+< #endif
+292c269
+<     AutoCloseFd result(fd2);
+---
+>     AutoCloseFd result(fd2, fd.get_path());
+300a278,281
+>   StringPtr getFdPath() const {
+>     return fd.get_path();
+>   }
+> 
+310,315d290
+< #if __APPLE__
+<     // For whatever reason, fsync() on OSX only flushes kernel buffers. It does not flush hardware
+<     // disk buffers. This makes it not very useful. But OSX documents fcntl F_FULLFSYNC which does
+<     // the right thing. Why they don't just make fsync() do the right thing, I do not know.
+<     KJ_SYSCALL(fcntl(fd, F_FULLFSYNC));
+< #else
+317d291
+< #endif
+321,323d294
+<     // The presence of the _POSIX_SYNCHRONIZED_IO define is supposed to tell us that fdatasync()
+<     // exists. But Apple defines this yet doesn't offer fdatasync(). Thanks, Apple.
+< #if _POSIX_SYNCHRONIZED_IO && !__APPLE__
+325,327d295
+< #else
+<     this->sync();
+< #endif
+384,396d351
+< #ifdef FALLOC_FL_PUNCH_HOLE
+<     KJ_SYSCALL_HANDLE_ERRORS(
+<         fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, offset, size)) {
+<       case EOPNOTSUPP:
+<         // fall back to below
+<         break;
+<       default:
+<         KJ_FAIL_SYSCALL("fallocate(FALLOC_FL_PUNCH_HOLE)", error) { return; }
+<     } else {
+<       return;
+<     }
+< #endif
+< 
+399d353
+< #if __APPLE__ || __CYGWIN__
+407,437d360
+< #else
+<     // Use a 4k buffer of zeros amplified by iov to write zeros with as few syscalls as possible.
+<     size_t count = (size + sizeof(ZEROS) - 1) / sizeof(ZEROS);
+<     const size_t iovmax = miniposix::iovMax(count);
+<     KJ_STACK_ARRAY(struct iovec, iov, kj::min(iovmax, count), 16, 256);
+< 
+<     for (auto& item: iov) {
+<       item.iov_base = const_cast<byte*>(ZEROS);
+<       item.iov_len = sizeof(ZEROS);
+<     }
+< 
+<     while (size > 0) {
+<       size_t iovCount;
+<       if (size >= iov.size() * sizeof(ZEROS)) {
+<         iovCount = iov.size();
+<       } else {
+<         iovCount = size / sizeof(ZEROS);
+<         size_t rem = size % sizeof(ZEROS);
+<         if (rem > 0) {
+<           iov[iovCount++].iov_len = rem;
+<         }
+<       }
+< 
+<       ssize_t n;
+<       KJ_SYSCALL(n = pwritev(fd, iov.begin(), count, offset));
+<       KJ_ASSERT(n > 0, "pwrite() returned zero?");
+< 
+<       offset += n;
+<       size -= n;
+<     }
+< #endif
+491,510d413
+< #if __linux__
+<     {
+<       KJ_SYSCALL(lseek(fd, offset, SEEK_SET));
+<       off_t fromPos = fromOffset;
+<       off_t end = fromOffset + size;
+<       while (fromPos < end) {
+<         ssize_t n;
+<         KJ_SYSCALL_HANDLE_ERRORS(n = sendfile(fd, fromFd, &fromPos, end - fromPos)) {
+<           case EINVAL:
+<           case ENOSYS:
+<             goto sendfileNotAvailable;
+<           default:
+<             KJ_FAIL_SYSCALL("sendfile", error) { return fromPos - fromOffset; }
+<         }
+<       }
+<       return fromPos - fromOffset;
+<     }
+< 
+<   sendfileNotAvailable:
+< #endif
+529,554d431
+< #ifdef FICLONE
+<       if (offset == 0 && fromOffset == 0 && size == kj::maxValue && stat().size == 0) {
+<         if (ioctl(fd, FICLONE, *otherFd) >= 0) {
+<           return stat().size;
+<         }
+<       } else if (size > 0) {    // src_length = 0 has special meaning for the syscall, so avoid.
+<         struct file_clone_range range;
+<         memset(&range, 0, sizeof(range));
+<         range.src_fd = *otherFd;
+<         range.dest_offset = offset;
+<         range.src_offset = fromOffset;
+<         range.src_length = size == kj::maxValue ? 0 : size;
+<         if (ioctl(fd, FICLONERANGE, &range) >= 0) {
+<           // TODO(someday): What does FICLONERANGE actually do if the range goes past EOF? The docs
+<           //   don't say. Maybe it only copies the parts that exist. Maybe it punches holes for the
+<           //   rest. Where does the destination file's EOF marker end up? Who knows?
+<           return kj::min(from.stat().size - fromOffset, size);
+<         }
+<       } else {
+<         // size == 0
+<         return size_t(0);
+<       }
+< 
+<       // ioctl failed. Almost all failures documented for these are of the form "the operation is
+<       // not supported for the filesystem(s) specified", so fall back to other approaches.
+< #endif
+565,577d441
+< #ifdef SEEK_HOLE
+<           KJ_SYSCALL_HANDLE_ERRORS(nextHole = lseek(*otherFd, fromPos, SEEK_HOLE)) {
+<             case EINVAL:
+<               // SEEK_HOLE probably not supported. Assume no holes.
+<               nextHole = end;
+<               break;
+<             case ENXIO:
+<               // Past EOF. Stop here.
+<               return fromPos - fromOffset;
+<             default:
+<               KJ_FAIL_SYSCALL("lseek(fd, pos, SEEK_HOLE)", error) { return fromPos - fromOffset; }
+<           }
+< #else
+580d443
+< #endif
+599,635d461
+< 
+< #ifdef SEEK_HOLE
+<         // Handle hole.
+<         {
+<           // Find out how much hole there is before the next data.
+<           off_t nextData;
+<           KJ_SYSCALL_HANDLE_ERRORS(nextData = lseek(*otherFd, fromPos, SEEK_DATA)) {
+<             case EINVAL:
+<               // SEEK_DATA probably not supported. But we should only have gotten here if we
+<               // were expecting a hole.
+<               KJ_FAIL_ASSERT("can't determine hole size; SEEK_DATA not supported");
+<               break;
+<             case ENXIO:
+<               // No more data. Set to EOF.
+<               KJ_SYSCALL(nextData = lseek(*otherFd, 0, SEEK_END));
+<               if (nextData > end) {
+<                 end = nextData;
+<               }
+<               break;
+<             default:
+<               KJ_FAIL_SYSCALL("lseek(fd, pos, SEEK_HOLE)", error) { return fromPos - fromOffset; }
+<           }
+< 
+<           // Write zeros.
+<           off_t zeroTo = kj::min(end, nextData);
+<           off_t amount = zeroTo - fromPos;
+<           if (amount > 0) {
+<             zero(toPos, amount);
+<             toPos += amount;
+<             fromPos = zeroTo;
+<           }
+< 
+<           if (fromPos == end) {
+<             return fromPos - fromOffset;
+<           }
+<         }
+< #endif
+651,659c477,478
+<     // Unfortunately, fdopendir() takes ownership of the file descriptor. Therefore we need to
+<     // make a duplicate.
+<     int duped;
+<     KJ_SYSCALL(duped = dup(fd));
+<     DIR* dir = fdopendir(duped);
+<     if (dir == nullptr) {
+<       close(duped);
+<       KJ_FAIL_SYSCALL("fdopendir", errno);
+<     }
+---
+>     const auto p = fd.get_path().cStr();
+>     DIR* dir = opendir(p);
+679,683d497
+< #ifdef DT_UNKNOWN    // d_type is not available on all platforms.
+<         if (entry->d_type != DT_UNKNOWN) {
+<           entries.add(func(name, modeToType(DTTOIF(entry->d_type))));
+<         } else {
+< #endif
+692,694d505
+< #ifdef DT_UNKNOWN
+<         }
+< #endif
+714c525,526
+<     KJ_SYSCALL_HANDLE_ERRORS(faccessat(fd, path.toString().cStr(), F_OK, 0)) {
+---
+>     const auto p = fs_join(fd.get_path(), path.toString().cStr());
+>     KJ_SYSCALL_HANDLE_ERRORS(access(p.cStr(), F_OK)) {
+719c531
+<         KJ_FAIL_SYSCALL("faccessat(fd, path)", error, path) { return false; }
+---
+>         KJ_FAIL_SYSCALL("access(path, mode)", error, path) { return false; }
+738,739c550,552
+<     KJ_SYSCALL_HANDLE_ERRORS(newFd = openat(
+<         fd, path.toString().cStr(), O_RDONLY | MAYBE_O_CLOEXEC)) {
+---
+>     const auto p = fs_join(fd.get_path(), path.toString().cStr());
+>     KJ_SYSCALL_HANDLE_ERRORS(newFd = open(
+>                                p.cStr(), O_RDONLY | MAYBE_O_CLOEXEC)) {
+744c557
+<         KJ_FAIL_SYSCALL("openat(fd, path, O_RDONLY)", error, path) { return nullptr; }
+---
+>         KJ_FAIL_SYSCALL("open(path, O_RDONLY)", error, p) { return nullptr; }
+747,750c560
+<     kj::AutoCloseFd result(newFd);
+< #ifndef O_CLOEXEC
+<     setCloexec(result);
+< #endif
+---
+>     kj::AutoCloseFd result(newFd, p);
+757,758c567,569
+<     KJ_SYSCALL_HANDLE_ERRORS(newFd = openat(
+<         fd, path.toString().cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+---
+>     const auto p = fs_join(fd.get_path(), path.toString().cStr());
+>     KJ_SYSCALL_HANDLE_ERRORS(newFd = open(
+>                                p.cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+770c581
+<         KJ_FAIL_SYSCALL("openat(fd, path, O_DIRECTORY)", error, path) { return nullptr; }
+---
+>         KJ_FAIL_SYSCALL("open(path, O_DIRECTORY)", error, p) { return nullptr; }
+773,776c584
+<     kj::AutoCloseFd result(newFd);
+< #ifndef O_CLOEXEC
+<     setCloexec(result);
+< #endif
+---
+>     kj::AutoCloseFd result(newFd, p);
+785a594
+>     const auto p = fs_join(fd.get_path(), path.toString().cStr());
+789c598
+<       ssize_t n = readlinkat(fd, path.toString().cStr(), buf.begin(), buf.size());
+---
+>       ssize_t n = readlink(p.cStr(), buf.begin(), buf.size());
+800c609
+<             KJ_FAIL_SYSCALL("readlinkat(fd, path)", error, path) { return nullptr; }
+---
+>             KJ_FAIL_SYSCALL("readlink(path)", error, p) { return nullptr; }
+822c631,632
+<     KJ_SYSCALL_HANDLE_ERRORS(mkdirat(fd, filename.cStr(), acl)) {
+---
+>     const auto p = fs_join(fd.get_path(), filename.cStr());
+>     KJ_SYSCALL_HANDLE_ERRORS(mkdir(p.cStr(), acl)) {
+858c668
+<           KJ_FAIL_SYSCALL("mkdirat(fd, path)", error, path);
+---
+>           KJ_FAIL_SYSCALL("mkdir(path)", error, path);
+959c769,770
+<       if (tryCommitReplacement(filename, fd, *tempPath, mode)) {
+---
+>       const auto indir = kj::mv(*tempPath);
+>       if (tryCommitReplacement(filename, fd.get_path(), indir, mode)) {
+962c773,774
+<         KJ_SYSCALL_HANDLE_ERRORS(unlinkat(fd, tempPath->cStr(), 0)) {
+---
+>         const auto p = fs_join(fd.get_path(), tempPath->cStr());
+>         KJ_SYSCALL_HANDLE_ERRORS(unlink(p.cStr())) {
+967c779
+<             KJ_FAIL_SYSCALL("unlinkat(fd, tempPath, 0)", error, *tempPath);
+---
+>             KJ_FAIL_SYSCALL("unlink(tempPath, 0)", error, *tempPath);
+1000a813
+>     const auto p = fs_join(fd.get_path(), filename.cStr());
+1003c816
+<     KJ_SYSCALL_HANDLE_ERRORS(newFd = openat(fd, filename.cStr(), flags, acl)) {
+---
+>     KJ_SYSCALL_HANDLE_ERRORS(newFd = open(p.cStr(), flags, acl)) {
+1016a830
+>           const auto p = fs_join(fd.get_path(), filename.cStr());
+1018c832
+<               faccessat(fd, filename.cStr(), F_OK, AT_SYMLINK_NOFOLLOW) >= 0) {
+---
+>               access(p.cStr(), F_OK) >= 0) {
+1043c857
+<         KJ_FAIL_SYSCALL("openat(fd, path, O_RDWR | ...)", error, path) { return nullptr; }
+---
+>         KJ_FAIL_SYSCALL("open(path, O_RDWR | ...)", error, p) { return nullptr; }
+1046,1049c860
+<     kj::AutoCloseFd result(newFd);
+< #ifndef O_CLOEXEC
+<     setCloexec(result);
+< #endif
+---
+>     kj::AutoCloseFd result(newFd, p);
+1054c865,871
+<   bool tryCommitReplacement(StringPtr toPath, int fromDirFd, StringPtr fromPath, WriteMode mode,
+---
+>   // jfs: ugh this one is weird
+>   // Maybe I can promote fromDirFd from an int to an AutoCloseFd
+>   // Maybe I can `getFdPath` everywhere I need to upstream and can just pass that in, excising the troublesome AutoCloseFd?
+>   // bool tryCommitReplacement(StringPtr toPath, const AutoCloseFd& fromDirFd, StringPtr fromPath, WriteMode mode,
+>   //                           int* errorReason = nullptr) const {
+> 
+>   bool tryCommitReplacement(StringPtr toPath, StringPtr fromRoot, StringPtr fromPath, WriteMode mode,
+1055a873,874
+>     StringPtr from = fs_join(fromRoot, fromPath.cStr());
+>     StringPtr to = fs_join(fd.get_path(), toPath.cStr());
+1058c877
+<       KJ_SYSCALL_HANDLE_ERRORS(renameat(fromDirFd, fromPath.cStr(), fd.get(), toPath.cStr())) {
+---
+>       KJ_SYSCALL_HANDLE_ERRORS(rename(from.cStr(), to.cStr())) {
+1079,1138d897
+< #if __linux__ && defined(RENAME_EXCHANGE)
+<     // Try to use Linux's renameat2() to atomically check preconditions and apply.
+< 
+<     if (has(mode, WriteMode::MODIFY)) {
+<       // Use an exchange to implement modification.
+<       //
+<       // We reach this branch when performing a MODIFY-only, or when performing a CREATE | MODIFY
+<       // in which we determined above that there's a node of a different type blocking the
+<       // exchange.
+< 
+<       KJ_SYSCALL_HANDLE_ERRORS(syscall(SYS_renameat2,
+<           fromDirFd, fromPath.cStr(), fd.get(), toPath.cStr(), RENAME_EXCHANGE)) {
+<         case ENOSYS:
+<           break;  // fall back to traditional means
+<         case ENOENT:
+<           // Presumably because the target path doesn't exist.
+<           if (has(mode, WriteMode::CREATE)) {
+<             KJ_FAIL_ASSERT("rename(tmp, path) claimed path exists but "
+<                 "renameat2(fromPath, toPath, EXCAHNGE) said it doest; concurrent modification?",
+<                 fromPath, toPath) { return false; }
+<           } else {
+<             // Assume target doesn't exist.
+<             return false;
+<           }
+<         default:
+<           if (errorReason == nullptr) {
+<             KJ_FAIL_SYSCALL("renameat2(fromPath, toPath, EXCHANGE)", error, fromPath, toPath) {
+<               return false;
+<             }
+<           } else {
+<             *errorReason = error;
+<             return false;
+<           }
+<       } else {
+<         // Successful swap! Delete swapped-out content.
+<         rmrf(fromDirFd, fromPath);
+<         return true;
+<       }
+<     } else if (has(mode, WriteMode::CREATE)) {
+<       KJ_SYSCALL_HANDLE_ERRORS(syscall(SYS_renameat2,
+<           fromDirFd, fromPath.cStr(), fd.get(), toPath.cStr(), RENAME_NOREPLACE)) {
+<         case ENOSYS:
+<           break;  // fall back to traditional means
+<         case EEXIST:
+<           return false;
+<         default:
+<           if (errorReason == nullptr) {
+<             KJ_FAIL_SYSCALL("renameat2(fromPath, toPath, NOREPLACE)", error, fromPath, toPath) {
+<               return false;
+<             }
+<           } else {
+<             *errorReason = error;
+<             return false;
+<           }
+<       } else {
+<         return true;
+<       }
+<     }
+< #endif
+< 
+1155a915
+>         const auto mkdir_path = fs_join(fd.get_path(), candidatePath.cStr());
+1157c917
+<           return mkdirat(fd, candidatePath.cStr(), 0700);
+---
+>           return mkdir(mkdir_path.cStr(), 0700);
+1159,1167c919
+< #if __APPLE__
+<           // No mknodat() on OSX, gotta open() a file, ugh.
+<           int newFd = openat(fd, candidatePath.cStr(),
+<                              O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, 0700);
+<           if (newFd >= 0) close(newFd);
+<           return newFd;
+< #else
+<           return mknodat(fd, candidatePath.cStr(), S_IFREG | 0600, dev_t());
+< #endif
+---
+>           return mknod(mkdir_path.cStr(), S_IFREG | 0600, dev_t());
+1177c929,930
+<       KJ_SYSCALL(renameat(fd, toPath.cStr(), fd, away.cStr())) {
+---
+>       const auto old_to = fs_join(fd.get_path(), away.cStr());
+>       KJ_SYSCALL(rename(to.cStr(), old_to.cStr())) {
+1179c932,939
+<         unlinkat(fd, away.cStr(), S_ISDIR(stats.st_mode) ? AT_REMOVEDIR : 0);
+---
+>         if (S_ISDIR(stats.st_mode))
+>         {
+>           rmdir(old_to.cStr());
+>         }
+>         else
+>         {
+>           unlink(old_to.cStr());
+>         }
+1184c944
+<       KJ_SYSCALL_HANDLE_ERRORS(renameat(fromDirFd, fromPath.cStr(), fd, toPath.cStr())) {
+---
+>       KJ_SYSCALL_HANDLE_ERRORS(rename(from.cStr(), to.cStr())) {
+1188c948
+<           KJ_SYSCALL_HANDLE_ERRORS(renameat(fd, away.cStr(), fd, toPath.cStr())) {
+---
+>           KJ_SYSCALL_HANDLE_ERRORS(rename(old_to.cStr(), to.cStr())) {
+1203c963
+<       rmrf(fd, away);
+---
+>       rmrf(fd, fd.get_path(), away);
+1236c996
+<       return tryCommitReplacement(toPath, fromDirFd, fromPath,
+---
+>       return tryCommitReplacement(toPath, fromRoot, fromPath,
+1253c1013
+<         rmrf(handle.fd, tempPath);
+---
+>         rmrf(handle.getFd(), handle.getFdPath(), tempPath);
+1263c1023
+<       return committed = handle.tryCommitReplacement(path, handle.fd, tempPath,
+---
+>       return committed = handle.tryCommitReplacement(path, handle.fd.get_path(), tempPath,
+1307,1308c1067,1069
+<       return newFd_ = openat(fd, candidatePath.cStr(),
+<                              O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, acl);
+---
+>       const auto p = fs_join(fd.get_path(), candidatePath.cStr());
+>       return newFd_ = open(p.cStr(),
+>                            O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, acl);
+1310,1313c1071
+<       AutoCloseFd newFd(newFd_);
+< #ifndef O_CLOEXEC
+<       setCloexec(newFd);
+< #endif
+---
+>       AutoCloseFd newFd(newFd_, temp->cStr());
+1325,1346d1082
+< #if __linux__ && defined(O_TMPFILE)
+<     // Use syscall() to work around glibc bug with O_TMPFILE:
+<     //     https://sourceware.org/bugzilla/show_bug.cgi?id=17523
+<     KJ_SYSCALL_HANDLE_ERRORS(newFd_ = syscall(
+<         SYS_openat, fd.get(), ".", O_RDWR | O_TMPFILE, 0700)) {
+<       case EOPNOTSUPP:
+<       case EINVAL:
+<       case EISDIR:
+<         // Maybe not supported by this kernel / filesystem. Fall back to below.
+<         break;
+<       default:
+<         KJ_FAIL_SYSCALL("open(O_TMPFILE)", error) { break; }
+<         break;
+<     } else {
+<       AutoCloseFd newFd(newFd_);
+< #ifndef O_CLOEXEC
+<       setCloexec(newFd);
+< #endif
+<       return newDiskFile(kj::mv(newFd));
+<     }
+< #endif
+< 
+1349c1085,1086
+<       return newFd_ = openat(fd, path.cStr(), O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, 0600);
+---
+>       const auto p = fs_join(fd.get_path(), path.cStr());
+>       return newFd_ = open(p.cStr(), O_RDWR | O_CREAT | O_EXCL | MAYBE_O_CLOEXEC, 0600);
+1351,1354c1088
+<       AutoCloseFd newFd(newFd_);
+< #ifndef O_CLOEXEC
+<       setCloexec(newFd);
+< #endif
+---
+>       AutoCloseFd newFd(newFd_, temp->cStr());
+1356c1090,1092
+<       KJ_SYSCALL(unlinkat(fd, temp->cStr(), 0)) { break; }
+---
+> 
+>       const auto p = fs_join(fd.get_path(), temp->cStr());
+>       KJ_SYSCALL(p.cStr(), 0) { break; }
+1382c1118,1119
+<       return mkdirat(fd, candidatePath.cStr(), acl);
+---
+>       const auto p = fs_join(fd.get_path(), candidatePath.cStr());
+>       return mkdir(p.cStr(), acl);
+1385,1386c1122,1124
+<       KJ_SYSCALL_HANDLE_ERRORS(subdirFd_ = openat(
+<           fd, temp->cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+---
+>       const auto p = fs_join(fd.get_path(), temp->cStr());
+>       KJ_SYSCALL_HANDLE_ERRORS(subdirFd_ = open(
+>             p.cStr(), O_RDONLY | MAYBE_O_CLOEXEC | MAYBE_O_DIRECTORY)) {
+1392,1395c1130
+<       AutoCloseFd subdirFd(subdirFd_);
+< #ifndef O_CLOEXEC
+<       setCloexec(subdirFd);
+< #endif
+---
+>       AutoCloseFd subdirFd(subdirFd_, temp->cStr());
+1406c1141,1142
+<       return symlinkat(content.cStr(), fd, candidatePath.cStr());
+---
+>       const auto p = fs_join(fd.get_path(), candidatePath.cStr());
+>       return symlink(content.cStr(), p.cStr());
+1419c1155,1157
+<           return linkat(*fromFd, fromPath.toString().cStr(), fd, candidatePath.cStr(), 0);
+---
+>           const auto from = fs_join(fromDirectory.getFdPath(), fromPath.toString().cStr());
+>           const auto to = fs_join(fd.get_path(), candidatePath.cStr());
+>           return link(from.cStr(), to.cStr());
+1427c1165
+<         if (tryCommitReplacement(toPath.toString(), *fromFd, fromPath.toString(), toMode,
+---
+>         if (tryCommitReplacement(toPath.toString(), fromDirectory.getFdPath(), fromPath.toString(), toMode,
+1464c1202
+<     return rmrf(fd, path.toString());
+---
+>     return rmrf(fd, fd.get_path(), path.toString());
+1471,1479c1209,1219
+< #define FSNODE_METHODS(classname)                                   \
+<   Maybe<int> getFd() const override { return DiskHandle::getFd(); } \
+<                                                                     \
+<   Own<const FsNode> cloneFsNode() const override {                  \
+<     return heap<classname>(DiskHandle::clone());                    \
+<   }                                                                 \
+<                                                                     \
+<   Metadata stat() const override { return DiskHandle::stat(); }     \
+<   void sync() const override { DiskHandle::sync(); }                \
+---
+> #define FSNODE_METHODS(classname)                                             \
+>   Maybe<int> getFd() const override { return DiskHandle::getFd(); }           \
+>                                                                               \
+>   StringPtr getFdPath() const override { return DiskHandle::getFdPath(); }  \
+>                                                                               \
+>   Own<const FsNode> cloneFsNode() const override {                            \
+>     return heap<classname>(DiskHandle::clone());                              \
+>   }                                                                           \
+>                                                                               \
+>   Metadata stat() const override { return DiskHandle::stat(); }               \
+>   void sync() const override { DiskHandle::sync(); }                          \
+1653,1656c1393
+<     AutoCloseFd result(newFd);
+< #ifndef O_CLOEXEC
+<     setCloexec(result);
+< #endif
+---
+>     AutoCloseFd result(newFd, dir);
