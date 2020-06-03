@@ -24,6 +24,12 @@
 # TODO: convert to cmake_parse_arguments
 
 function(CAPNP_GENERATE_CPP SOURCES HEADERS)
+
+  if (CMAKE_CROSSCOMPILING)
+     set(CAPNP_EXECUTABLE ${CAPNP_EXECUTABLE_SYSTEM})
+     set(CAPNPC_CXX_EXECUTABLE ${CAPNPC_CXX_EXECUTABLE_SYSTEM})
+  endif()
+
   if(NOT ARGN)
     message(SEND_ERROR "CAPNP_GENERATE_CPP() called without any source files.")
   endif()
