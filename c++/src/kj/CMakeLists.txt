@@ -71,7 +71,9 @@ set(kj-std_headers
   std/iostream.h
 )
 add_library(kj ${kj_sources})
+target_compile_definitions(kj PRIVATE KJ_EXPORTS)
 add_library(CapnProto::kj ALIAS kj)
+target_compile_features(kj PUBLIC cxx_std_11)
 
 if (QNXNTO)
   target_compile_options(kj PRIVATE -std=c++14 -x c++)
@@ -140,6 +142,7 @@ set(kj-async_headers
 )
 if(NOT CAPNP_LITE)
   add_library(kj-async ${kj-async_sources})
+  target_compile_definitions(kj-async PRIVATE KJ_ASYNC_EXPORTS)
   add_library(CapnProto::kj-async ALIAS kj-async)
 
   if(QNXNTO)
@@ -162,27 +165,30 @@ endif()
 
 # kj-http ======================================================================
 
-set(kj-http_sources
-  compat/url.c++
-  compat/http.c++
-)
-set(kj-http_headers
-  compat/url.h
-  compat/http.h
-)
-if(NOT CAPNP_LITE)
-  add_library(kj-http ${kj-http_sources})
-  add_library(CapnProto::kj-http ALIAS kj-http)
+if(KJ_HTTP)
+  set(kj-http_sources
+    compat/url.c++
+    compat/http.c++
+  )
+  set(kj-http_headers
+    compat/url.h
+    compat/http.h
+  )
+  if(NOT CAPNP_LITE)
+    add_library(kj-http ${kj-http_sources})
+    target_compile_definitions(kj-http PRIVATE KJ_HTTP_EXPORTS)
+    add_library(CapnProto::kj-http ALIAS kj-http)
 
-  if(QNXNTO)
-    target_compile_options(kj-http PRIVATE -std=c++14 -x c++)
+    if(QNXNTO)
+      target_compile_options(kj-http PRIVATE -std=c++14 -x c++)
+    endif()
+
+    target_link_libraries(kj-http PUBLIC kj-async kj)
+    # Ensure the library has a version set to match autotools build
+    set_target_properties(kj-http PROPERTIES VERSION ${VERSION})
+    install(TARGETS kj-http ${INSTALL_TARGETS_DEFAULT_ARGS})
+    install(FILES ${kj-http_headers} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/kj/compat")
   endif()
-
-  target_link_libraries(kj-http PUBLIC kj-async kj)
-  # Ensure the library has a version set to match autotools build
-  set_target_properties(kj-http PROPERTIES VERSION ${VERSION})
-  install(TARGETS kj-http ${INSTALL_TARGETS_DEFAULT_ARGS})
-  install(FILES ${kj-http_headers} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/kj/compat")
 endif()
 
 # kj-gzip ======================================================================

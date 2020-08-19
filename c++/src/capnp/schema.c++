@@ -199,6 +199,10 @@ kj::ArrayPtr<const word> Schema::asUncheckedMessage() const {
   return kj::arrayPtr(raw->generic->encodedNode, raw->generic->encodedSize);
 }
 
+Schema Schema::getDependency(uint64_t id) const {
+  return getDependency(id, 0);
+}
+
 Schema Schema::getDependency(uint64_t id, uint location) const {
   {
     // Binary search dependency list.
@@ -263,6 +267,8 @@ Schema::BrandArgumentList Schema::getBrandArgumentsAtScope(uint64_t scopeId) con
   // This scope is not listed in the scopes list.
   return BrandArgumentList(scopeId, raw->isUnbound());
 }
+
+StructSchema::StructSchema(): Schema(&_::NULL_STRUCT_SCHEMA.defaultBrand) {}
 
 StructSchema Schema::asStruct() const {
   KJ_REQUIRE(getProto().isStruct(), "Tried to use non-struct schema as a struct.",

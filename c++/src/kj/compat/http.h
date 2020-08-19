@@ -79,7 +79,7 @@ namespace kj {
   MACRO(UNSUBSCRIBE)
   /* UPnP */
 
-enum class HttpMethod {
+enum class KJ_HTTP_API HttpMethod {
   // Enum of known HTTP methods.
   //
   // We use an enum rather than a string to allow for faster parsing and switching and to reduce
@@ -95,7 +95,7 @@ kj::Maybe<HttpMethod> tryParseHttpMethod(kj::StringPtr name);
 
 class HttpHeaderTable;
 
-class HttpHeaderId {
+class KJ_HTTP_API HttpHeaderId {
   // Identifies an HTTP header by numeric ID that indexes into an HttpHeaderTable.
   //
   // The KJ HTTP API prefers that headers be identified by these IDs for a few reasons:
@@ -171,7 +171,7 @@ private:
   friend class HttpHeaders;
 };
 
-class HttpHeaderTable {
+class KJ_HTTP_API HttpHeaderTable {
   // Construct an HttpHeaderTable to declare which headers you'll be interested in later on, and
   // to manufacture IDs for them.
   //
@@ -199,7 +199,7 @@ public:
   HttpHeaderTable();
   // Constructs a table that only contains the builtin headers.
 
-  class Builder {
+  class KJ_HTTP_API Builder {
   public:
     Builder();
     HttpHeaderId add(kj::StringPtr name);
@@ -237,7 +237,7 @@ private:
   kj::Own<IdsByNameMap> idsByName;
 };
 
-class HttpHeaders {
+class KJ_HTTP_API HttpHeaders {
   // Represents a set of HTTP headers.
   //
   // This class guards against basic HTTP header injection attacks: Trying to set a header name or
@@ -406,7 +406,7 @@ public:
   virtual void generate(kj::ArrayPtr<byte> buffer) = 0;
 };
 
-class WebSocket {
+class KJ_HTTP_API WebSocket {
   // Interface representincg an open WebSocket session.
   //
   // Each side can send and receive data and "close" messages.
@@ -461,7 +461,7 @@ public:
   // calling this first, and the default implementation of tryPumpFrom() always returns null.
 };
 
-class HttpClient {
+class KJ_HTTP_API HttpClient {
   // Interface to the client end of an HTTP connection.
   //
   // There are two kinds of clients:
@@ -504,7 +504,7 @@ public:
   // the body. This will trigger use of the `Content-Length` connection header. Otherwise,
   // `Transfer-Encoding: chunked` will be used.
 
-  struct WebSocketResponse {
+  struct KJ_HTTP_API WebSocketResponse {
     uint statusCode;
     kj::StringPtr statusText;
     const HttpHeaders* headers;
@@ -523,7 +523,7 @@ public:
   // UNIMPLEMENTED.
 };
 
-class HttpService {
+class KJ_HTTP_API HttpService {
   // Interface which HTTP services should implement.
   //
   // This interface is functionally equivalent to HttpClient, but is intended for applications to
@@ -539,7 +539,7 @@ class HttpService {
   //   and hostname.
 
 public:
-  class Response {
+  class KJ_HTTP_API Response {
   public:
     virtual kj::Own<kj::AsyncOutputStream> send(
         uint statusCode, kj::StringPtr statusText, const HttpHeaders& headers,
@@ -682,7 +682,7 @@ struct HttpServerSettings {
   // completes, we'll let the connection stay open to handle more requests.
 };
 
-class HttpServer final: private kj::TaskSet::ErrorHandler {
+class KJ_HTTP_API HttpServer final: private kj::TaskSet::ErrorHandler {
   // Class which listens for requests on ports or connections and sends them to an HttpService.
 
 public:

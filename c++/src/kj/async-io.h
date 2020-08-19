@@ -49,7 +49,7 @@ class AsyncIoStream;
 // =======================================================================================
 // Streaming I/O
 
-class AsyncInputStream {
+class KJ_ASYNC_API AsyncInputStream {
   // Asynchronous equivalent of InputStream (from io.h).
 
 public:
@@ -88,7 +88,7 @@ public:
   // the default, particularly on untrusted data streams which may never see EOF.
 };
 
-class AsyncOutputStream {
+class KJ_ASYNC_API AsyncOutputStream {
   // Asynchronous equivalent of OutputStream (from io.h).
 
 public:
@@ -108,7 +108,7 @@ public:
   // The default implementation always returns null.
 };
 
-class AsyncIoStream: public AsyncInputStream, public AsyncOutputStream {
+class KJ_ASYNC_API AsyncIoStream: public AsyncInputStream, public AsyncOutputStream {
   // A combination input and output stream.
 
 public:
@@ -203,7 +203,7 @@ struct CapabilityPipe {
   Own<AsyncCapabilityStream> ends[2];
 };
 
-class ConnectionReceiver {
+class KJ_ASYNC_API ConnectionReceiver {
   // Represents a server socket listening on a port.
 
 public:
@@ -223,7 +223,7 @@ public:
 // =======================================================================================
 // Datagram I/O
 
-class AncillaryMessage {
+class KJ_ASYNC_API AncillaryMessage {
   // Represents an ancillary message (aka control message) received using the recvmsg() system
   // call (or equivalent). Most apps will not use this.
 
@@ -257,7 +257,7 @@ private:
   // Message data. In most cases you should use `as()` or `asArray()`.
 };
 
-class DatagramReceiver {
+class KJ_ASYNC_API DatagramReceiver {
   // Class encapsulating the recvmsg() system call. You must specify the DatagramReceiver's
   // capacity in advance; if a received packet is larger than the capacity, it will be truncated.
 
@@ -302,7 +302,7 @@ public:
   };
 };
 
-class DatagramPort {
+class KJ_ASYNC_API DatagramPort {
 public:
   virtual Promise<size_t> send(const void* buffer, size_t size, NetworkAddress& destination) = 0;
   virtual Promise<size_t> send(ArrayPtr<const ArrayPtr<const byte>> pieces,
@@ -326,7 +326,7 @@ public:
 // =======================================================================================
 // Networks
 
-class NetworkAddress {
+class KJ_ASYNC_API NetworkAddress {
   // Represents a remote address to which the application can connect.
 
 public:
@@ -355,7 +355,7 @@ public:
   // hopefully know what they are able to do with it.
 };
 
-class Network {
+class KJ_ASYNC_API Network {
   // Factory for NetworkAddress instances, representing the network services offered by the
   // operating system.
   //
@@ -444,7 +444,7 @@ public:
 // =======================================================================================
 // I/O Provider
 
-class AsyncIoProvider {
+class KJ_ASYNC_API AsyncIoProvider {
   // Class which constructs asynchronous wrappers around the operating system's I/O facilities.
   //
   // Generally, the implementation of this interface must integrate closely with a particular
@@ -518,7 +518,7 @@ public:
   // continues to count while the system is suspended.
 };
 
-class LowLevelAsyncIoProvider {
+class KJ_ASYNC_API LowLevelAsyncIoProvider {
   // Similar to `AsyncIoProvider`, but represents a lower-level interface that may differ on
   // different operating systems.  You should prefer to use `AsyncIoProvider` over this interface
   // whenever possible, as `AsyncIoProvider` is portable and friendlier to dependency-injection.
@@ -669,7 +669,7 @@ struct AsyncIoContext {
 #endif
 };
 
-AsyncIoContext setupAsyncIo();
+KJ_ASYNC_API AsyncIoContext setupAsyncIo();
 // Convenience method which sets up the current thread with everything it needs to do async I/O.
 // The returned objects contain an `EventLoop` which is wrapping an appropriate `EventPort` for
 // doing I/O on the host system, so everything is ready for the thread to start making async calls
