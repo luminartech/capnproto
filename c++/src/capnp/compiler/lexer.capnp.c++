@@ -205,7 +205,7 @@ static const ::capnp::_::AlignedData<195> b_91cc55cd57de5419 = {
 ::capnp::word const* const bp_91cc55cd57de5419 = b_91cc55cd57de5419.words;
 #if !CAPNP_LITE
 static const ::capnp::_::RawSchema* const d_91cc55cd57de5419[] = {
-  &s_91cc55cd57de5419,
+  sp_91cc55cd57de5419,
 };
 static const uint16_t m_91cc55cd57de5419[] = {9, 6, 8, 3, 0, 2, 4, 5, 7, 1};
 static const uint16_t i_91cc55cd57de5419[] = {0, 1, 2, 3, 4, 5, 6, 9, 7, 8};
@@ -339,8 +339,8 @@ static const ::capnp::_::AlignedData<119> b_c6725e678d60fa37 = {
 ::capnp::word const* const bp_c6725e678d60fa37 = b_c6725e678d60fa37.words;
 #if !CAPNP_LITE
 static const ::capnp::_::RawSchema* const d_c6725e678d60fa37[] = {
-  &s_91cc55cd57de5419,
-  &s_c6725e678d60fa37,
+  sp_91cc55cd57de5419,
+  sp_c6725e678d60fa37,
 };
 static const uint16_t m_c6725e678d60fa37[] = {2, 3, 5, 1, 4, 0};
 static const uint16_t i_c6725e678d60fa37[] = {1, 2, 0, 3, 4, 5};
@@ -393,7 +393,7 @@ static const ::capnp::_::AlignedData<38> b_9e69a92512b19d18 = {
 ::capnp::word const* const bp_9e69a92512b19d18 = b_9e69a92512b19d18.words;
 #if !CAPNP_LITE
 static const ::capnp::_::RawSchema* const d_9e69a92512b19d18[] = {
-  &s_91cc55cd57de5419,
+  sp_91cc55cd57de5419,
 };
 static const uint16_t m_9e69a92512b19d18[] = {0};
 static const uint16_t i_9e69a92512b19d18[] = {0};
@@ -448,7 +448,7 @@ static const ::capnp::_::AlignedData<40> b_a11f97b9d6c73dd4 = {
 ::capnp::word const* const bp_a11f97b9d6c73dd4 = b_a11f97b9d6c73dd4.words;
 #if !CAPNP_LITE
 static const ::capnp::_::RawSchema* const d_a11f97b9d6c73dd4[] = {
-  &s_c6725e678d60fa37,
+  sp_c6725e678d60fa37,
 };
 static const uint16_t m_a11f97b9d6c73dd4[] = {0};
 static const uint16_t i_a11f97b9d6c73dd4[] = {0};

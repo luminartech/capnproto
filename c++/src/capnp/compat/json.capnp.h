@@ -137,7 +137,7 @@ struct DiscriminatorOptions {
 
 // =======================================================================================
 
-class Value::Reader {
+class CAPNP_8ef99297a43a5e34_API Value::Reader {
 public:
   typedef Value Reads;
 
@@ -192,7 +192,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Value::Builder {
+class CAPNP_8ef99297a43a5e34_API Value::Builder {
 public:
   typedef Value Builds;
 
@@ -263,7 +263,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Value::Pipeline {
+class CAPNP_8ef99297a43a5e34_API Value::Pipeline {
 public:
   typedef Value Pipelines;
 
@@ -279,7 +279,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Value::Field::Reader {
+class CAPNP_8ef99297a43a5e34_API Value::Field::Reader {
 public:
   typedef Field Reads;
 
@@ -314,7 +314,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Value::Field::Builder {
+class CAPNP_8ef99297a43a5e34_API Value::Field::Builder {
 public:
   typedef Field Builds;
 
@@ -354,7 +354,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Value::Field::Pipeline {
+class CAPNP_8ef99297a43a5e34_API Value::Field::Pipeline {
 public:
   typedef Field Pipelines;
 
@@ -371,7 +371,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Value::Call::Reader {
+class CAPNP_8ef99297a43a5e34_API Value::Call::Reader {
 public:
   typedef Call Reads;
 
@@ -406,7 +406,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Value::Call::Builder {
+class CAPNP_8ef99297a43a5e34_API Value::Call::Builder {
 public:
   typedef Call Builds;
 
@@ -446,7 +446,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Value::Call::Pipeline {
+class CAPNP_8ef99297a43a5e34_API Value::Call::Pipeline {
 public:
   typedef Call Pipelines;
 
@@ -462,7 +462,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class FlattenOptions::Reader {
+class CAPNP_8ef99297a43a5e34_API FlattenOptions::Reader {
 public:
   typedef FlattenOptions Reads;
 
@@ -494,7 +494,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class FlattenOptions::Builder {
+class CAPNP_8ef99297a43a5e34_API FlattenOptions::Builder {
 public:
   typedef FlattenOptions Builds;
 
@@ -527,7 +527,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class FlattenOptions::Pipeline {
+class CAPNP_8ef99297a43a5e34_API FlattenOptions::Pipeline {
 public:
   typedef FlattenOptions Pipelines;
 
@@ -543,7 +543,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class DiscriminatorOptions::Reader {
+class CAPNP_8ef99297a43a5e34_API DiscriminatorOptions::Reader {
 public:
   typedef DiscriminatorOptions Reads;
 
@@ -578,7 +578,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class DiscriminatorOptions::Builder {
+class CAPNP_8ef99297a43a5e34_API DiscriminatorOptions::Builder {
 public:
   typedef DiscriminatorOptions Builds;
 
@@ -618,7 +618,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class DiscriminatorOptions::Pipeline {
+class CAPNP_8ef99297a43a5e34_API DiscriminatorOptions::Pipeline {
 public:
   typedef DiscriminatorOptions Pipelines;
 

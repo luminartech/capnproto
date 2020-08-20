@@ -29,10 +29,10 @@
 namespace capnp {
 namespace schemas {
 
-CAPNP_DECLARE_SCHEMA_2(91cc55cd57de5419,  CAPNP_a73956d2621fc3ee_API );
-CAPNP_DECLARE_SCHEMA_2(c6725e678d60fa37,  CAPNP_a73956d2621fc3ee_API );
-CAPNP_DECLARE_SCHEMA_2(9e69a92512b19d18,  CAPNP_a73956d2621fc3ee_API );
-CAPNP_DECLARE_SCHEMA_2(a11f97b9d6c73dd4,  CAPNP_a73956d2621fc3ee_API );
+CAPNP_DECLARE_SCHEMA_2(91cc55cd57de5419, CAPNP_a73956d2621fc3ee_API );
+CAPNP_DECLARE_SCHEMA_2(c6725e678d60fa37, CAPNP_a73956d2621fc3ee_API );
+CAPNP_DECLARE_SCHEMA_2(9e69a92512b19d18, CAPNP_a73956d2621fc3ee_API );
+CAPNP_DECLARE_SCHEMA_2(a11f97b9d6c73dd4, CAPNP_a73956d2621fc3ee_API );
 
 }  // namespace schemas
 }  // namespace capnp
@@ -116,7 +116,7 @@ struct LexedStatements {
 
 // =======================================================================================
 
-class Token::Reader {
+class CAPNP_a73956d2621fc3ee_API Token::Reader {
 public:
   typedef Token Reads;
 
@@ -180,7 +180,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Token::Builder {
+class CAPNP_a73956d2621fc3ee_API Token::Builder {
 public:
   typedef Token Builds;
 
@@ -271,7 +271,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Token::Pipeline {
+class CAPNP_a73956d2621fc3ee_API Token::Pipeline {
 public:
   typedef Token Pipelines;
 
@@ -287,7 +287,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Statement::Reader {
+class CAPNP_a73956d2621fc3ee_API Statement::Reader {
 public:
   typedef Statement Reads;
 
@@ -334,7 +334,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Statement::Builder {
+class CAPNP_a73956d2621fc3ee_API Statement::Builder {
 public:
   typedef Statement Builds;
 
@@ -393,7 +393,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Statement::Pipeline {
+class CAPNP_a73956d2621fc3ee_API Statement::Pipeline {
 public:
   typedef Statement Pipelines;
 
@@ -409,7 +409,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class LexedTokens::Reader {
+class CAPNP_a73956d2621fc3ee_API LexedTokens::Reader {
 public:
   typedef LexedTokens Reads;
 
@@ -441,7 +441,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class LexedTokens::Builder {
+class CAPNP_a73956d2621fc3ee_API LexedTokens::Builder {
 public:
   typedef LexedTokens Builds;
 
@@ -474,7 +474,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class LexedTokens::Pipeline {
+class CAPNP_a73956d2621fc3ee_API LexedTokens::Pipeline {
 public:
   typedef LexedTokens Pipelines;
 
@@ -490,7 +490,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class LexedStatements::Reader {
+class CAPNP_a73956d2621fc3ee_API LexedStatements::Reader {
 public:
   typedef LexedStatements Reads;
 
@@ -522,7 +522,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class LexedStatements::Builder {
+class CAPNP_a73956d2621fc3ee_API LexedStatements::Builder {
 public:
   typedef LexedStatements Builds;
 
@@ -555,7 +555,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class LexedStatements::Pipeline {
+class CAPNP_a73956d2621fc3ee_API LexedStatements::Pipeline {
 public:
   typedef LexedStatements Pipelines;
 

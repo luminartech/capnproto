@@ -64,7 +64,7 @@ struct Persistent {
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
-    static ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, SturdyRef, Owner>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, SturdyRef, Owner>::brand(); }
   };
   #endif  // !CAPNP_LITE
 };
@@ -83,7 +83,7 @@ struct Persistent<SturdyRef, Owner>::SaveParams {
     static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
-    static ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, SturdyRef, Owner>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, SturdyRef, Owner>::brand(); }
     #endif  // !CAPNP_LITE
   };
 };
@@ -102,7 +102,7 @@ struct Persistent<SturdyRef, Owner>::SaveResults {
     static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
-    static ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, SturdyRef, Owner>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, SturdyRef, Owner>::brand(); }
     #endif  // !CAPNP_LITE
   };
 };
@@ -126,7 +126,7 @@ struct RealmGateway {
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
-    static ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InternalRef, ExternalRef, InternalOwner, ExternalOwner>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InternalRef, ExternalRef, InternalOwner, ExternalOwner>::brand(); }
   };
   #endif  // !CAPNP_LITE
 };
@@ -146,7 +146,7 @@ struct RealmGateway<InternalRef, ExternalRef, InternalOwner, ExternalOwner>::Imp
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
-    static ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InternalRef, ExternalRef, InternalOwner, ExternalOwner>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InternalRef, ExternalRef, InternalOwner, ExternalOwner>::brand(); }
     #endif  // !CAPNP_LITE
   };
 };
@@ -166,7 +166,7 @@ struct RealmGateway<InternalRef, ExternalRef, InternalOwner, ExternalOwner>::Exp
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
-    static ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InternalRef, ExternalRef, InternalOwner, ExternalOwner>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InternalRef, ExternalRef, InternalOwner, ExternalOwner>::brand(); }
     #endif  // !CAPNP_LITE
   };
 };

@@ -426,7 +426,7 @@ struct Exception {
 
 // =======================================================================================
 
-class Message::Reader {
+class CAPNP_b312981b2552a250_API Message::Reader {
 public:
   typedef Message Reads;
 
@@ -512,7 +512,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Message::Builder {
+class CAPNP_b312981b2552a250_API Message::Builder {
 public:
   typedef Message Builds;
 
@@ -645,7 +645,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Message::Pipeline {
+class CAPNP_b312981b2552a250_API Message::Pipeline {
 public:
   typedef Message Pipelines;
 
@@ -661,7 +661,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Bootstrap::Reader {
+class CAPNP_b312981b2552a250_API Bootstrap::Reader {
 public:
   typedef Bootstrap Reads;
 
@@ -695,7 +695,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Bootstrap::Builder {
+class CAPNP_b312981b2552a250_API Bootstrap::Builder {
 public:
   typedef Bootstrap Builds;
 
@@ -728,7 +728,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Bootstrap::Pipeline {
+class CAPNP_b312981b2552a250_API Bootstrap::Pipeline {
 public:
   typedef Bootstrap Pipelines;
 
@@ -744,7 +744,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Call::Reader {
+class CAPNP_b312981b2552a250_API Call::Reader {
 public:
   typedef Call Reads;
 
@@ -789,7 +789,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Call::Builder {
+class CAPNP_b312981b2552a250_API Call::Builder {
 public:
   typedef Call Builds;
 
@@ -844,7 +844,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Call::Pipeline {
+class CAPNP_b312981b2552a250_API Call::Pipeline {
 public:
   typedef Call Pipelines;
 
@@ -863,7 +863,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Call::SendResultsTo::Reader {
+class CAPNP_b312981b2552a250_API Call::SendResultsTo::Reader {
 public:
   typedef SendResultsTo Reads;
 
@@ -903,7 +903,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Call::SendResultsTo::Builder {
+class CAPNP_b312981b2552a250_API Call::SendResultsTo::Builder {
 public:
   typedef SendResultsTo Builds;
 
@@ -943,7 +943,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Call::SendResultsTo::Pipeline {
+class CAPNP_b312981b2552a250_API Call::SendResultsTo::Pipeline {
 public:
   typedef SendResultsTo Pipelines;
 
@@ -959,7 +959,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Return::Reader {
+class CAPNP_b312981b2552a250_API Return::Reader {
 public:
   typedef Return Reads;
 
@@ -1014,7 +1014,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Return::Builder {
+class CAPNP_b312981b2552a250_API Return::Builder {
 public:
   typedef Return Builds;
 
@@ -1080,7 +1080,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Return::Pipeline {
+class CAPNP_b312981b2552a250_API Return::Pipeline {
 public:
   typedef Return Pipelines;
 
@@ -1096,7 +1096,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Finish::Reader {
+class CAPNP_b312981b2552a250_API Finish::Reader {
 public:
   typedef Finish Reads;
 
@@ -1129,7 +1129,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Finish::Builder {
+class CAPNP_b312981b2552a250_API Finish::Builder {
 public:
   typedef Finish Builds;
 
@@ -1161,7 +1161,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Finish::Pipeline {
+class CAPNP_b312981b2552a250_API Finish::Pipeline {
 public:
   typedef Finish Pipelines;
 
@@ -1177,7 +1177,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Resolve::Reader {
+class CAPNP_b312981b2552a250_API Resolve::Reader {
 public:
   typedef Resolve Reads;
 
@@ -1217,7 +1217,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Resolve::Builder {
+class CAPNP_b312981b2552a250_API Resolve::Builder {
 public:
   typedef Resolve Builds;
 
@@ -1263,7 +1263,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Resolve::Pipeline {
+class CAPNP_b312981b2552a250_API Resolve::Pipeline {
 public:
   typedef Resolve Pipelines;
 
@@ -1279,7 +1279,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Release::Reader {
+class CAPNP_b312981b2552a250_API Release::Reader {
 public:
   typedef Release Reads;
 
@@ -1312,7 +1312,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Release::Builder {
+class CAPNP_b312981b2552a250_API Release::Builder {
 public:
   typedef Release Builds;
 
@@ -1344,7 +1344,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Release::Pipeline {
+class CAPNP_b312981b2552a250_API Release::Pipeline {
 public:
   typedef Release Pipelines;
 
@@ -1360,7 +1360,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Disembargo::Reader {
+class CAPNP_b312981b2552a250_API Disembargo::Reader {
 public:
   typedef Disembargo Reads;
 
@@ -1394,7 +1394,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Disembargo::Builder {
+class CAPNP_b312981b2552a250_API Disembargo::Builder {
 public:
   typedef Disembargo Builds;
 
@@ -1430,7 +1430,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Disembargo::Pipeline {
+class CAPNP_b312981b2552a250_API Disembargo::Pipeline {
 public:
   typedef Disembargo Pipelines;
 
@@ -1448,7 +1448,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Disembargo::Context::Reader {
+class CAPNP_b312981b2552a250_API Disembargo::Context::Reader {
 public:
   typedef Context Reads;
 
@@ -1490,7 +1490,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Disembargo::Context::Builder {
+class CAPNP_b312981b2552a250_API Disembargo::Context::Builder {
 public:
   typedef Context Builds;
 
@@ -1533,7 +1533,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Disembargo::Context::Pipeline {
+class CAPNP_b312981b2552a250_API Disembargo::Context::Pipeline {
 public:
   typedef Context Pipelines;
 
@@ -1549,7 +1549,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Provide::Reader {
+class CAPNP_b312981b2552a250_API Provide::Reader {
 public:
   typedef Provide Reads;
 
@@ -1586,7 +1586,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Provide::Builder {
+class CAPNP_b312981b2552a250_API Provide::Builder {
 public:
   typedef Provide Builds;
 
@@ -1626,7 +1626,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Provide::Pipeline {
+class CAPNP_b312981b2552a250_API Provide::Pipeline {
 public:
   typedef Provide Pipelines;
 
@@ -1643,7 +1643,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Accept::Reader {
+class CAPNP_b312981b2552a250_API Accept::Reader {
 public:
   typedef Accept Reads;
 
@@ -1679,7 +1679,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Accept::Builder {
+class CAPNP_b312981b2552a250_API Accept::Builder {
 public:
   typedef Accept Builds;
 
@@ -1715,7 +1715,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Accept::Pipeline {
+class CAPNP_b312981b2552a250_API Accept::Pipeline {
 public:
   typedef Accept Pipelines;
 
@@ -1731,7 +1731,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Join::Reader {
+class CAPNP_b312981b2552a250_API Join::Reader {
 public:
   typedef Join Reads;
 
@@ -1768,7 +1768,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Join::Builder {
+class CAPNP_b312981b2552a250_API Join::Builder {
 public:
   typedef Join Builds;
 
@@ -1808,7 +1808,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Join::Pipeline {
+class CAPNP_b312981b2552a250_API Join::Pipeline {
 public:
   typedef Join Pipelines;
 
@@ -1825,7 +1825,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class MessageTarget::Reader {
+class CAPNP_b312981b2552a250_API MessageTarget::Reader {
 public:
   typedef MessageTarget Reads;
 
@@ -1862,7 +1862,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class MessageTarget::Builder {
+class CAPNP_b312981b2552a250_API MessageTarget::Builder {
 public:
   typedef MessageTarget Builds;
 
@@ -1901,7 +1901,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class MessageTarget::Pipeline {
+class CAPNP_b312981b2552a250_API MessageTarget::Pipeline {
 public:
   typedef MessageTarget Pipelines;
 
@@ -1917,7 +1917,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Payload::Reader {
+class CAPNP_b312981b2552a250_API Payload::Reader {
 public:
   typedef Payload Reads;
 
@@ -1952,7 +1952,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Payload::Builder {
+class CAPNP_b312981b2552a250_API Payload::Builder {
 public:
   typedef Payload Builds;
 
@@ -1989,7 +1989,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Payload::Pipeline {
+class CAPNP_b312981b2552a250_API Payload::Pipeline {
 public:
   typedef Payload Pipelines;
 
@@ -2005,7 +2005,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class CapDescriptor::Reader {
+class CAPNP_b312981b2552a250_API CapDescriptor::Reader {
 public:
   typedef CapDescriptor Reads;
 
@@ -2055,7 +2055,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class CapDescriptor::Builder {
+class CAPNP_b312981b2552a250_API CapDescriptor::Builder {
 public:
   typedef CapDescriptor Builds;
 
@@ -2114,7 +2114,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class CapDescriptor::Pipeline {
+class CAPNP_b312981b2552a250_API CapDescriptor::Pipeline {
 public:
   typedef CapDescriptor Pipelines;
 
@@ -2130,7 +2130,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class PromisedAnswer::Reader {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Reader {
 public:
   typedef PromisedAnswer Reads;
 
@@ -2164,7 +2164,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class PromisedAnswer::Builder {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Builder {
 public:
   typedef PromisedAnswer Builds;
 
@@ -2200,7 +2200,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class PromisedAnswer::Pipeline {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Pipeline {
 public:
   typedef PromisedAnswer Pipelines;
 
@@ -2216,7 +2216,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class PromisedAnswer::Op::Reader {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Op::Reader {
 public:
   typedef Op Reads;
 
@@ -2252,7 +2252,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class PromisedAnswer::Op::Builder {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Op::Builder {
 public:
   typedef Op Builds;
 
@@ -2287,7 +2287,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class PromisedAnswer::Op::Pipeline {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Op::Pipeline {
 public:
   typedef Op Pipelines;
 
@@ -2303,7 +2303,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class ThirdPartyCapDescriptor::Reader {
+class CAPNP_b312981b2552a250_API ThirdPartyCapDescriptor::Reader {
 public:
   typedef ThirdPartyCapDescriptor Reads;
 
@@ -2337,7 +2337,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class ThirdPartyCapDescriptor::Builder {
+class CAPNP_b312981b2552a250_API ThirdPartyCapDescriptor::Builder {
 public:
   typedef ThirdPartyCapDescriptor Builds;
 
@@ -2370,7 +2370,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class ThirdPartyCapDescriptor::Pipeline {
+class CAPNP_b312981b2552a250_API ThirdPartyCapDescriptor::Pipeline {
 public:
   typedef ThirdPartyCapDescriptor Pipelines;
 
@@ -2386,7 +2386,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Exception::Reader {
+class CAPNP_b312981b2552a250_API Exception::Reader {
 public:
   typedef Exception Reads;
 
@@ -2424,7 +2424,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Exception::Builder {
+class CAPNP_b312981b2552a250_API Exception::Builder {
 public:
   typedef Exception Builds;
 
@@ -2466,7 +2466,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Exception::Pipeline {
+class CAPNP_b312981b2552a250_API Exception::Pipeline {
 public:
   typedef Exception Pipelines;
 

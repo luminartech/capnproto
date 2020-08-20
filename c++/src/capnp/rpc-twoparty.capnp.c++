@@ -81,7 +81,7 @@ static const ::capnp::_::AlignedData<33> b_d20b909fee733a8e = {
 ::capnp::word const* const bp_d20b909fee733a8e = b_d20b909fee733a8e.words;
 #if !CAPNP_LITE
 static const ::capnp::_::RawSchema* const d_d20b909fee733a8e[] = {
-  &s_9fd69ebc87b9719c,
+  sp_9fd69ebc87b9719c,
 };
 static const uint16_t m_d20b909fee733a8e[] = {0};
 static const uint16_t i_d20b909fee733a8e[] = {0};
