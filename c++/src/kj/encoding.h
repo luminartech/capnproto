@@ -199,7 +199,7 @@ EncodingResult<Array<byte>> decodeBinaryUriComponent(
 // Decode URI components using % escapes. This is a lower-level interface used to implement both
 // `decodeUriComponent()` and `decodeWwwForm()`
 
-String encodeCEscape(ArrayPtr<const byte> bytes);
+KJ_API String encodeCEscape(ArrayPtr<const byte> bytes);
 String encodeCEscape(ArrayPtr<const char> bytes);
 EncodingResult<Array<byte>> decodeBinaryCEscape(
     ArrayPtr<const char> text, bool nulTerminate = false);

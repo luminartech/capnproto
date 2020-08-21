@@ -335,7 +335,7 @@ public:
 
 // -------------------------------------------------------------------
 
-class PointerBuilder: public kj::DisallowConstCopy {
+class CAPNP_API PointerBuilder: public kj::DisallowConstCopy {
   // Represents a single pointer, usually embedded in a struct or a list.
 
 public:
@@ -419,7 +419,7 @@ private:
   friend class OrphanBuilder;
 };
 
-class PointerReader {
+class CAPNP_API PointerReader {
 public:
   inline PointerReader()
       : segment(nullptr), capTable(nullptr), pointer(nullptr), nestingLimit(0x7fffffff) {}
@@ -496,7 +496,7 @@ private:
 
 // -------------------------------------------------------------------
 
-class StructBuilder: public kj::DisallowConstCopy {
+class CAPNP_API StructBuilder: public kj::DisallowConstCopy {
 public:
   inline StructBuilder(): segment(nullptr), capTable(nullptr), data(nullptr), pointers(nullptr) {}
 
@@ -584,7 +584,7 @@ private:
   friend class OrphanBuilder;
 };
 
-class StructReader {
+class CAPNP_API StructReader {
 public:
   inline StructReader()
       : segment(nullptr), capTable(nullptr), data(nullptr), pointers(nullptr),
@@ -849,7 +849,7 @@ private:
 
 // -------------------------------------------------------------------
 
-class OrphanBuilder {
+class CAPNP_API OrphanBuilder {
 public:
   inline OrphanBuilder(): segment(nullptr), capTable(nullptr), location(nullptr) {
     memset(&tag, 0, sizeof(tag));
