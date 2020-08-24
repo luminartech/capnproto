@@ -32,6 +32,7 @@
 #include <kj/async.h>
 #include <kj/vector.h>
 #include "raw-schema.h"
+#include "schema.h"
 #include "any.h"
 #include "pointer-helpers.h"
 
@@ -67,7 +68,6 @@ public:
 
 class LocalClient;
 namespace _ { // private
-extern const RawSchema NULL_INTERFACE_SCHEMA;  // defined in schema.c++
 class CapabilityServerSetBase;
 }  // namespace _ (private)
 
@@ -82,10 +82,10 @@ struct Capability {
     struct IsInterface;
     static constexpr uint64_t typeId = 0x3;
     static constexpr Kind kind = Kind::INTERFACE;
-    static constexpr _::RawSchema const* schema = &_::NULL_INTERFACE_SCHEMA;
+    //static constexpr _::RawSchema const* schema = _::NULL_INTERFACE_SCHEMA();
 
     static const _::RawBrandedSchema* brand() {
-      return &_::NULL_INTERFACE_SCHEMA.defaultBrand;
+      return &_::NULL_INTERFACE_SCHEMA()->defaultBrand;
     }
   };
 };

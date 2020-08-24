@@ -1101,7 +1101,7 @@ CAPNP_API Orphan<DynamicValue> Orphanage::newOrphanCopy<DynamicValue::Reader>(
 namespace _ {  // private
 
 template <>
-struct PointerHelpers<DynamicStruct, Kind::OTHER> {
+struct CAPNP_API PointerHelpers<DynamicStruct, Kind::OTHER> {
   // getDynamic() is used when an AnyPointer's get() accessor is passed arguments, because for
   // non-dynamic types PointerHelpers::get() takes a default value as the third argument, and we
   // don't want people to accidentally be able to provide their own default value.
@@ -1118,7 +1118,7 @@ struct PointerHelpers<DynamicStruct, Kind::OTHER> {
 };
 
 template <>
-struct PointerHelpers<DynamicList, Kind::OTHER> {
+struct CAPNP_API PointerHelpers<DynamicList, Kind::OTHER> {
   // getDynamic() is used when an AnyPointer's get() accessor is passed arguments, because for
   // non-dynamic types PointerHelpers::get() takes a default value as the third argument, and we
   // don't want people to accidentally be able to provide their own default value.
@@ -1135,7 +1135,7 @@ struct PointerHelpers<DynamicList, Kind::OTHER> {
 };
 
 template <>
-struct PointerHelpers<DynamicCapability, Kind::OTHER> {
+struct CAPNP_API PointerHelpers<DynamicCapability, Kind::OTHER> {
   // getDynamic() is used when an AnyPointer's get() accessor is passed arguments, because for
   // non-dynamic types PointerHelpers::get() takes a default value as the third argument, and we
   // don't want people to accidentally be able to provide their own default value.
@@ -1364,11 +1364,11 @@ inline DynamicValue::Reader::Reader(const char* value): Reader(Text::Reader(valu
 
 #define CAPNP_DECLARE_TYPE(discrim, typeName) \
 template <> \
-struct DynamicValue::Reader::AsImpl<typeName> { \
+struct CAPNP_API DynamicValue::Reader::AsImpl<typeName> { \
   static ReaderFor<typeName> apply(const Reader& reader); \
 }; \
 template <> \
-struct DynamicValue::Builder::AsImpl<typeName> { \
+struct CAPNP_API DynamicValue::Builder::AsImpl<typeName> { \
   static BuilderFor<typeName> apply(Builder& builder); \
 };
 

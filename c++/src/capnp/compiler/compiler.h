@@ -51,7 +51,7 @@ public:
   // Read and return the content of a file specified using `embed`.
 };
 
-class Compiler final: private SchemaLoader::LazyLoadCallback {
+class CAPNP_C_API Compiler final: private SchemaLoader::LazyLoadCallback {
   // Cross-links separate modules (schema files) and translates them into schema nodes.
   //
   // This class is thread-safe, hence all its methods are const.

@@ -56,11 +56,11 @@ using SchemaType = typename SchemaType_<T>::Type;
 // SchemaType<T> is the type of T's schema, e.g. StructSchema if T is a struct.
 
 namespace _ {  // private
-extern const RawSchema NULL_SCHEMA;
-extern const RawSchema NULL_STRUCT_SCHEMA;
-extern const RawSchema NULL_ENUM_SCHEMA;
-extern const RawSchema NULL_INTERFACE_SCHEMA;
-extern const RawSchema NULL_CONST_SCHEMA;
+CAPNP_API constexpr const RawSchema const* NULL_SCHEMA();
+CAPNP_API constexpr const RawSchema const* NULL_STRUCT_SCHEMA();
+CAPNP_API constexpr const RawSchema const* NULL_ENUM_SCHEMA();
+CAPNP_API constexpr const RawSchema const* NULL_INTERFACE_SCHEMA();
+CAPNP_API constexpr const RawSchema const* NULL_CONST_SCHEMA();
 // The schema types default to these null (empty) schemas in case of error, especially when
 // exceptions are disabled.
 }  // namespace _ (private)
@@ -69,7 +69,7 @@ class CAPNP_API Schema {
   // Convenience wrapper around capnp::schema::Node.
 
 public:
-  inline Schema(): raw(&_::NULL_SCHEMA.defaultBrand) {}
+  inline Schema(): raw(&_::NULL_SCHEMA()->defaultBrand) {}
 
   template <typename T>
   static inline SchemaType<T> from() { return SchemaType<T>::template fromImpl<T>(); }
@@ -371,7 +371,7 @@ private:
 
 class CAPNP_API EnumSchema: public Schema {
 public:
-  inline EnumSchema(): Schema(&_::NULL_ENUM_SCHEMA.defaultBrand) {}
+  inline EnumSchema(): Schema(&_::NULL_ENUM_SCHEMA()->defaultBrand) {}
 
   class Enumerant;
   class EnumerantList;
@@ -442,7 +442,7 @@ private:
 
 class CAPNP_API InterfaceSchema: public Schema {
 public:
-  inline InterfaceSchema(): Schema(&_::NULL_INTERFACE_SCHEMA.defaultBrand) {}
+  inline InterfaceSchema(): Schema(&_::NULL_INTERFACE_SCHEMA()->defaultBrand) {}
 
   class Method;
   class MethodList;
@@ -561,7 +561,7 @@ class CAPNP_API ConstSchema: public Schema {
   // `ConstSchema` can be implicitly cast to DynamicValue to read its value.
 
 public:
-  inline ConstSchema(): Schema(&_::NULL_CONST_SCHEMA.defaultBrand) {}
+  inline ConstSchema(): Schema(&_::NULL_CONST_SCHEMA()->defaultBrand) {}
 
   template <typename T>
   ReaderFor<T> as() const;

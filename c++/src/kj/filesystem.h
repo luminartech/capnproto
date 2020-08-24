@@ -920,8 +920,8 @@ public:
 
 // =======================================================================================
 
-Own<File> newInMemoryFile(const Clock& clock);
-Own<Directory> newInMemoryDirectory(const Clock& clock);
+KJ_API Own<File> newInMemoryFile(const Clock& clock);
+KJ_API Own<Directory> newInMemoryDirectory(const Clock& clock);
 // Construct file and directory objects which reside in-memory.
 //
 // InMemoryFile has the following special properties:
@@ -936,7 +936,7 @@ Own<Directory> newInMemoryDirectory(const Clock& clock);
 // - link() and rename() accept any kind of Directory as `fromDirectory` -- it doesn't need to be
 //   another InMemoryDirectory. However, for rename(), the from path must be a directory.
 
-Own<AppendableFile> newFileAppender(Own<const File> inner);
+KJ_API Own<AppendableFile> newFileAppender(Own<const File> inner);
 // Creates an AppendableFile by wrapping a File. Note that this implementation assumes it is the
 // only writer. A correct implementation should always append to the file even if other writes
 // are happening simultaneously, as is achieved with the O_APPEND flag to open(2), but that
@@ -948,14 +948,14 @@ typedef AutoCloseHandle OsFileHandle;
 typedef AutoCloseFd OsFileHandle;
 #endif
 
-Own<ReadableFile> newDiskReadableFile(OsFileHandle fd);
-Own<AppendableFile> newDiskAppendableFile(OsFileHandle fd);
-Own<File> newDiskFile(OsFileHandle fd);
-Own<ReadableDirectory> newDiskReadableDirectory(OsFileHandle fd);
-Own<Directory> newDiskDirectory(OsFileHandle fd);
+KJ_API Own<ReadableFile> newDiskReadableFile(OsFileHandle fd);
+KJ_API Own<AppendableFile> newDiskAppendableFile(OsFileHandle fd);
+KJ_API Own<File> newDiskFile(OsFileHandle fd);
+KJ_API Own<ReadableDirectory> newDiskReadableDirectory(OsFileHandle fd);
+KJ_API Own<Directory> newDiskDirectory(OsFileHandle fd);
 // Wrap a file descriptor (or Windows HANDLE) as various filesystem types.
 
-Own<Filesystem> newDiskFilesystem();
+KJ_API Own<Filesystem> newDiskFilesystem();
 // Get at implementation of `Filesystem` representing the real filesystem.
 //
 // DO NOT CALL THIS except at the top level of your program, e.g. in main(). Anywhere else, you

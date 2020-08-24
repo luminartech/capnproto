@@ -65,7 +65,7 @@ public:
   virtual Date now() const = 0;
 };
 
-const Clock& nullClock();
+KJ_ASYNC_API const Clock& nullClock();
 // A clock which always returns UNIX_EPOCH as the current time. Useful when you don't care about
 // time.
 

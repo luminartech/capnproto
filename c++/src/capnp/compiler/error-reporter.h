@@ -80,9 +80,10 @@ public:
   // of previous errors.
 };
 
-class LineBreakTable {
+class CAPNP_API LineBreakTable {
 public:
   LineBreakTable(kj::ArrayPtr<const char> content);
+  ~LineBreakTable();
 
   GlobalErrorReporter::SourcePos toSourcePos(uint32_t byteOffset) const;
 
