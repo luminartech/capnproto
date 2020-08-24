@@ -35,7 +35,7 @@ class Vector;
 
 class PathPtr;
 
-class Path {
+class KJ_API Path {
   // A Path identifies a file in a directory tree.
   //
   // In KJ, we avoid representing paths as plain strings because this can lead to path injection
@@ -239,7 +239,7 @@ private:
   static bool isWin32Special(StringPtr part);
 };
 
-class PathPtr {
+class KJ_API PathPtr {
   // Points to a Path or a slice of a Path, but doesn't own it.
   //
   // PathPtr is to Path as ArrayPtr is to Array and StringPtr is to String.
@@ -304,7 +304,7 @@ private:
 // methods). Of course, if you concurrently write the same bytes of a file from multiple threads,
 // it's unspecified which write will "win".
 
-class FsNode {
+class KJ_API FsNode {
   // Base class for filesystem node types.
 
 public:
@@ -402,7 +402,7 @@ protected:
   // Hence, every subclass must implement this.
 };
 
-class ReadableFile: public FsNode {
+class KJ_API ReadableFile: public FsNode {
 public:
   Own<const ReadableFile> clone() const;
 
@@ -451,7 +451,7 @@ public:
   // All methods are inherited.
 };
 
-class WritableFileMapping {
+class KJ_API WritableFileMapping {
 public:
   virtual ArrayPtr<byte> get() const = 0;
   // Gets the mapped bytes. The returned array can be modified, and those changes may be written to
@@ -478,7 +478,7 @@ public:
   // object after calling `.sync()` on the WritableFileMapping.
 };
 
-class File: public ReadableFile {
+class KJ_API File: public ReadableFile {
 public:
   Own<const File> clone() const;
 
@@ -517,7 +517,7 @@ public:
   // superior implementations that offload the work to the OS or even implement copy-on-write.
 };
 
-class ReadableDirectory: public FsNode {
+class KJ_API ReadableDirectory: public FsNode {
   // Read-only subset of `Directory`.
 
 public:
@@ -684,7 +684,7 @@ enum class TransferMode {
   // holes in the target file where holes exist in the source file.
 };
 
-class Directory: public ReadableDirectory {
+class KJ_API Directory: public ReadableDirectory {
   // Refers to a specific directory on disk.
   //
   // A `Directory` object *only* provides access to children of the directory, not parents. That
@@ -891,7 +891,7 @@ private:
   static void commitFailed(WriteMode mode);
 };
 
-class Filesystem {
+class KJ_API Filesystem {
 public:
   virtual const Directory& getRoot() const = 0;
   // Get the filesystem's root directory, as of the time the Filesystem object was created.

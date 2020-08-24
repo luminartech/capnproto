@@ -264,7 +264,7 @@ struct CAPNP_API AnyPointer {
   };
 
 #if !CAPNP_LITE
-  class Pipeline {
+  class CAPNP_API Pipeline {
   public:
     typedef AnyPointer Pipelines;
 

@@ -1312,7 +1312,13 @@ public:
   inline constexpr ArrayPtr(T* ptr, size_t size): ptr(ptr), size_(size) {}
   inline constexpr ArrayPtr(T* begin, T* end): ptr(begin), size_(end - begin) {}
   inline KJ_CONSTEXPR() ArrayPtr(::std::initializer_list<RemoveConstOrDisable<T>> init)
-      : ptr(init.begin()), size_(init.size()) {}
+  {
+    // VS 2019 cannot implicitly convert the _Elem* to T*
+    ptr = (T*)init.begin();
+    const T* start = (T*)init.begin();
+    const T* end = (T*)init.end();
+    size_ = static_cast<size_t>(start - end);
+  }
 
   template <size_t size>
   inline constexpr ArrayPtr(T (&native)[size]): ptr(native), size_(size) {

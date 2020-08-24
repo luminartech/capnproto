@@ -681,7 +681,7 @@ private:
 
 // -------------------------------------------------------------------
 
-class ListBuilder: public kj::DisallowConstCopy {
+class CAPNP_API ListBuilder: public kj::DisallowConstCopy {
 public:
   inline explicit ListBuilder(ElementSize elementSize)
       : segment(nullptr), capTable(nullptr), ptr(nullptr), elementCount(ZERO * ELEMENTS),
@@ -765,7 +765,7 @@ private:
   friend class OrphanBuilder;
 };
 
-class ListReader {
+class CAPNP_API ListReader {
 public:
   inline explicit ListReader(ElementSize elementSize)
       : segment(nullptr), capTable(nullptr), ptr(nullptr), elementCount(ZERO * ELEMENTS),
@@ -968,18 +968,18 @@ private:
 // Internal implementation details...
 
 // These are defined in the source file.
-template <> typename Text::Builder PointerBuilder::initBlob<Text>(ByteCount size);
-template <> void PointerBuilder::setBlob<Text>(typename Text::Reader value);
-template <> typename Text::Builder PointerBuilder::getBlob<Text>(
+template <> CAPNP_API typename Text::Builder PointerBuilder::initBlob<Text>(ByteCount size);
+template <> CAPNP_API void PointerBuilder::setBlob<Text>(typename Text::Reader value);
+template <> CAPNP_API typename Text::Builder PointerBuilder::getBlob<Text>(
     const void* defaultValue, ByteCount defaultSize);
-template <> typename Text::Reader PointerReader::getBlob<Text>(
+template <> CAPNP_API typename Text::Reader PointerReader::getBlob<Text>(
     const void* defaultValue, ByteCount defaultSize) const;
 
-template <> typename Data::Builder PointerBuilder::initBlob<Data>(ByteCount size);
-template <> void PointerBuilder::setBlob<Data>(typename Data::Reader value);
-template <> typename Data::Builder PointerBuilder::getBlob<Data>(
+template <> CAPNP_API typename Data::Builder PointerBuilder::initBlob<Data>(ByteCount size);
+template <> CAPNP_API void PointerBuilder::setBlob<Data>(typename Data::Reader value);
+template <> CAPNP_API typename Data::Builder PointerBuilder::getBlob<Data>(
     const void* defaultValue, ByteCount defaultSize);
-template <> typename Data::Reader PointerReader::getBlob<Data>(
+template <> CAPNP_API typename Data::Reader PointerReader::getBlob<Data>(
     const void* defaultValue, ByteCount defaultSize) const;
 
 inline PointerBuilder PointerBuilder::getRoot(
