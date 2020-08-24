@@ -52,7 +52,7 @@ function(CAPNP_GENERATE_CPP SOURCES HEADERS)
   endif()
 
   if(WIN32)
-    set(CAPNP_PATH_SEPARATOR ;)
+    set(CAPNP_PATH_SEPARATOR $<SEMICOLON>)
   else()
     set(CAPNP_PATH_SEPARATOR :)
   endif()
