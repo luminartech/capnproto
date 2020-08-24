@@ -52,7 +52,7 @@ function(CAPNP_GENERATE_CPP SOURCES HEADERS)
   endif()
 
   if(WIN32)
-    set(CAPNP_PATH_SEPARATOR $<SEMICOLON>)
+    set(CAPNP_PATH_SEPARATOR ;)
   else()
     set(CAPNP_PATH_SEPARATOR :)
   endif()
@@ -61,7 +61,7 @@ function(CAPNP_GENERATE_CPP SOURCES HEADERS)
     # Prepend a ':' to get the format for the '-o' flag right
     set(output_dir "${CAPNP_PATH_SEPARATOR}${CAPNPC_OUTPUT_DIR}")
   else()
-    set(output_dir "${CAPNP_PATH_SEPARATOR}.")
+    set(output_dir "${CAPNP_PATH_SEPARATOR}")
   endif()
 
   if(NOT DEFINED CAPNPC_SRC_PREFIX)
