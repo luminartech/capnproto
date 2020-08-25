@@ -51,17 +51,11 @@ function(CAPNP_GENERATE_CPP SOURCES HEADERS)
     message(SEND_ERROR "Could not locate capnp header files (CAPNP_INCLUDE_DIRECTORY).")
   endif()
 
-  if(WIN32)
-    set(CAPNP_PATH_SEPARATOR $<SEMICOLON>)
-  else()
-    set(CAPNP_PATH_SEPARATOR :)
-  endif()
-
   if(DEFINED CAPNPC_OUTPUT_DIR)
     # Prepend a ':' to get the format for the '-o' flag right
-    set(output_dir "${CAPNP_PATH_SEPARATOR}${CAPNPC_OUTPUT_DIR}")
+    set(output_dir ":${CAPNPC_OUTPUT_DIR}")
   else()
-    set(output_dir "${CAPNP_PATH_SEPARATOR}")
+    set(output_dir ":.")
   endif()
 
   if(NOT DEFINED CAPNPC_SRC_PREFIX)

@@ -78,7 +78,7 @@ struct ChooseBrand;
 template <typename TypeTag>
 struct ChooseBrand<TypeTag> {
   // All params were AnyPointer. No specific brand needed.
-  static constexpr _::RawBrandedSchema const* brand() { return &TypeTag::schema->defaultBrand; }
+  static constexpr _::RawBrandedSchema const* brand() { return &TypeTag::schema()->defaultBrand; }
 };
 
 template <typename TypeTag, typename... Rest>
