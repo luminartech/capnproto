@@ -54,7 +54,7 @@ namespace _ {  // private
 
 template <typename T, typename CapnpPrivate = typename T::_capnpPrivate, bool = false>
 inline const RawSchema& rawSchema() {
-  return *CapnpPrivate::schema;
+  return *CapnpPrivate::schema();
 }
 template <typename T, uint64_t id = schemas::EnumInfo<T>::typeId>
 inline const RawSchema& rawSchema() {
