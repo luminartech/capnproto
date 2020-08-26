@@ -33,6 +33,9 @@
 #include <kj/hash.h>
 #include <kj/windows-sanity.h>  // work-around macro conflict with `VOID`
 
+// thanks windows cmmdlg.h
+#undef INTERFACE
+
 namespace capnp {
 
 class Schema;

@@ -48,17 +48,26 @@
 // now, we use `#pragma once` to tell the compiler never to include this file again.
 #pragma once
 
+// we may not be the first file to do this, so only subvert ERROR and VOId if they are still present
+#ifdef ERROR
 namespace win32 {
   const auto ERROR_ = ERROR;
 #undef ERROR
   const auto ERROR = ERROR_;
+}
 
+using win32::ERROR;
+#endif
+
+#ifdef VOID
+namespace win32 {
   typedef VOID VOID_;
 #undef VOID
   typedef VOID_ VOID;
 }
 
-using win32::ERROR;
 using win32::VOID;
+#endif
+
 
 #endif
