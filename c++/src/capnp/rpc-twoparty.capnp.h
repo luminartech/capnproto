@@ -3,6 +3,9 @@
 
 #pragma once
 
+// thanks windows
+#undef CONST
+
 #ifndef CAPNP_a184c7885cdaf2a1_API 
 #if defined(_MSC_VER)
 #if defined(CAPNP_a184c7885cdaf2a1_EXPORTS)

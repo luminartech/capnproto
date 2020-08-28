@@ -2980,6 +2980,9 @@ private:
           "\n"
           "#pragma once\n"
           "\n"
+          "// thanks windows\n"
+          "#undef CONST\n"
+          "\n"
           "#ifndef ", moduleApi, "\n",
           "#if defined(_MSC_VER)", "\n",
           "#if defined(CAPNP_", kj::hex(node.getId()) ,"_EXPORTS)", "\n",
