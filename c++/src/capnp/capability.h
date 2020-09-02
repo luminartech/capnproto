@@ -82,7 +82,7 @@ struct Capability {
     struct IsInterface;
     static constexpr uint64_t typeId = 0x3;
     static constexpr Kind kind = Kind::INTERFACE;
-    static const _::RawSchema const* schema() {
+    static const _::RawSchema *const schema() {
       return _::NULL_INTERFACE_SCHEMA();
     }
 

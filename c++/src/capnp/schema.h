@@ -59,11 +59,11 @@ using SchemaType = typename SchemaType_<T>::Type;
 // SchemaType<T> is the type of T's schema, e.g. StructSchema if T is a struct.
 
 namespace _ {  // private
-CAPNP_API constexpr const RawSchema const* NULL_SCHEMA();
-CAPNP_API constexpr const RawSchema const* NULL_STRUCT_SCHEMA();
-CAPNP_API constexpr const RawSchema const* NULL_ENUM_SCHEMA();
-CAPNP_API constexpr const RawSchema const* NULL_INTERFACE_SCHEMA();
-CAPNP_API constexpr const RawSchema const* NULL_CONST_SCHEMA();
+CAPNP_API constexpr const RawSchema *const NULL_SCHEMA();
+CAPNP_API constexpr const RawSchema *const NULL_STRUCT_SCHEMA();
+CAPNP_API constexpr const RawSchema *const NULL_ENUM_SCHEMA();
+CAPNP_API constexpr const RawSchema *const NULL_INTERFACE_SCHEMA();
+CAPNP_API constexpr const RawSchema *const NULL_CONST_SCHEMA();
 // The schema types default to these null (empty) schemas in case of error, especially when
 // exceptions are disabled.
 }  // namespace _ (private)
