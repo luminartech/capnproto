@@ -153,6 +153,5 @@ function(CAPNP_GENERATE_EXPORT_TAGS TAG_LIST)
     endif()
   endforeach()
 
-  message("generated tag list: ${TAG_LIST}")
   set(${TAG_LIST} ${${TAG_LIST}} PARENT_SCOPE)
 endfunction()
