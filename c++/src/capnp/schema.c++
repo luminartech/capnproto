@@ -87,12 +87,12 @@ static const AlignedData<13> NULL_SCHEMA_BYTES = {{
   0x28, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x73, 0x63,
   0x68, 0x65, 0x6d, 0x61, 0x29, 0x00, 0x00, 0x00,
 }};
-constexpr RawSchema null_schema = {
+const RawSchema null_schema = {
   0x0000000000000000, NULL_SCHEMA_BYTES.words, 13,
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
   { &null_schema, nullptr, nullptr, 0, 0, nullptr }
 };
-constexpr const RawSchema *const NULL_SCHEMA(){ return &null_schema; }
+const RawSchema * NULL_SCHEMA(){ return &null_schema; }
 
 static const AlignedData<14> NULL_STRUCT_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -115,7 +115,7 @@ constexpr RawSchema null_struct_schema = {
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
   { &null_struct_schema, nullptr, nullptr, 0, 0, nullptr }
 };
-constexpr const RawSchema *const NULL_STRUCT_SCHEMA(){ return &null_struct_schema; }
+const RawSchema * NULL_STRUCT_SCHEMA(){ return &null_struct_schema; }
 
 static const AlignedData<14> NULL_ENUM_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -138,7 +138,7 @@ constexpr RawSchema null_enum_schema = {
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
   { &null_enum_schema, nullptr, nullptr, 0, 0, nullptr }
 };
-constexpr const RawSchema *const NULL_ENUM_SCHEMA(){ return &null_enum_schema; }
+const RawSchema * NULL_ENUM_SCHEMA(){ return &null_enum_schema; }
 
 static const AlignedData<14> NULL_INTERFACE_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -161,7 +161,7 @@ constexpr RawSchema null_interface_schema = {
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
   { &null_interface_schema, nullptr, nullptr, 0, 0, nullptr }
 };
-constexpr const RawSchema *const NULL_INTERFACE_SCHEMA(){ return &null_interface_schema; }
+const RawSchema * NULL_INTERFACE_SCHEMA(){ return &null_interface_schema; }
 
 static const AlignedData<20> NULL_CONST_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -190,7 +190,7 @@ constexpr RawSchema null_const_schema = {
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
   { &null_const_schema, nullptr, nullptr, 0, 0, nullptr }
 };
-constexpr const RawSchema *const NULL_CONST_SCHEMA(){ return &null_const_schema; }
+const RawSchema * NULL_CONST_SCHEMA(){ return &null_const_schema; }
 
 }  // namespace _ (private)
 
