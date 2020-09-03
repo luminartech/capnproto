@@ -23,6 +23,9 @@ find_package(CapnProto CONFIG REQUIRED)
 
 capnp_generate_cpp(addressbookSources addressbookHeaders addressbook.capnp)
 add_executable(addressbook addressbook.c++ ${addressbookSources})
+
+target_compile_definitions(addressbook PRIVATE CAPNP_9eb32e19f86ee174_EXPORTS)
+
 target_link_libraries(addressbook PRIVATE CapnProto::capnp)
 target_include_directories(addressbook PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 

@@ -49,7 +49,7 @@
 
 namespace capnp {
 
-class UnalignedFlatArrayMessageReader: public MessageReader {
+class CAPNP_API UnalignedFlatArrayMessageReader: public MessageReader {
   // Like FlatArrayMessageReader, but skips checking that the array is properly-aligned.
   //
   // WARNING: This only works on architectures that support unaligned reads, like x86/x64 and
@@ -72,7 +72,7 @@ private:
   const word* end;
 };
 
-class FlatArrayMessageReader: public UnalignedFlatArrayMessageReader {
+class CAPNP_API FlatArrayMessageReader: public UnalignedFlatArrayMessageReader {
   // Parses a message from a flat array.  Note that it makes sense to use this together with mmap()
   // for extremely fast parsing.
 
@@ -141,7 +141,7 @@ size_t expectedSizeInWordsFromPrefix(kj::ArrayPtr<const word> messagePrefix);
 
 // =======================================================================================
 
-class InputStreamMessageReader: public MessageReader {
+class CAPNP_API InputStreamMessageReader: public MessageReader {
   // A MessageReader that reads from an abstract kj::InputStream. See also StreamFdMessageReader
   // for a subclass specific to file descriptors.
 
@@ -168,7 +168,7 @@ private:
   kj::UnwindDetector unwindDetector;
 };
 
-void readMessageCopy(kj::InputStream& input, MessageBuilder& target,
+CAPNP_API void readMessageCopy(kj::InputStream& input, MessageBuilder& target,
                      ReaderOptions options = ReaderOptions(),
                      kj::ArrayPtr<word> scratchSpace = nullptr);
 // Convenience function which reads a message using `InputStreamMessageReader` then copies the
@@ -179,16 +179,16 @@ void readMessageCopy(kj::InputStream& input, MessageBuilder& target,
 // of `MessageBuilder`'s constructors. However, this approach skips the validation step and is not
 // safe to use on untrusted input. Therefore, we do not provide a convenience method for it.)
 
-void writeMessage(kj::OutputStream& output, MessageBuilder& builder);
+CAPNP_API void writeMessage(kj::OutputStream& output, MessageBuilder& builder);
 // Write the message to the given output stream.
 
-void writeMessage(kj::OutputStream& output, kj::ArrayPtr<const kj::ArrayPtr<const word>> segments);
+CAPNP_API void writeMessage(kj::OutputStream& output, kj::ArrayPtr<const kj::ArrayPtr<const word>> segments);
 // Write the segment array to the given output stream.
 
 // =======================================================================================
 // Specializations for reading from / writing to file descriptors.
 
-class StreamFdMessageReader: private kj::FdInputStream, public InputStreamMessageReader {
+class CAPNP_API StreamFdMessageReader: private kj::FdInputStream, public InputStreamMessageReader {
   // A MessageReader that reads from a steam-based file descriptor.
 
 public:
@@ -205,7 +205,7 @@ public:
   ~StreamFdMessageReader() noexcept(false);
 };
 
-void readMessageCopyFromFd(int fd, MessageBuilder& target,
+CAPNP_API void readMessageCopyFromFd(int fd, MessageBuilder& target,
                            ReaderOptions options = ReaderOptions(),
                            kj::ArrayPtr<word> scratchSpace = nullptr);
 // Convenience function which reads a message using `StreamFdMessageReader` then copies the
@@ -216,14 +216,14 @@ void readMessageCopyFromFd(int fd, MessageBuilder& target,
 // of `MessageBuilder`'s constructors. However, this approach skips the validation step and is not
 // safe to use on untrusted input. Therefore, we do not provide a convenience method for it.)
 
-void writeMessageToFd(int fd, MessageBuilder& builder);
+CAPNP_API void writeMessageToFd(int fd, MessageBuilder& builder);
 // Write the message to the given file descriptor.
 //
 // This function throws an exception on any I/O error.  If your code is not exception-safe, be sure
 // you catch this exception at the call site.  If throwing an exception is not acceptable, you
 // can implement your own OutputStream with arbitrary error handling and then use writeMessage().
 
-void writeMessageToFd(int fd, kj::ArrayPtr<const kj::ArrayPtr<const word>> segments);
+CAPNP_API void writeMessageToFd(int fd, kj::ArrayPtr<const kj::ArrayPtr<const word>> segments);
 // Write the segment array to the given file descriptor.
 //
 // This function throws an exception on any I/O error.  If your code is not exception-safe, be sure

@@ -87,11 +87,12 @@ static const AlignedData<13> NULL_SCHEMA_BYTES = {{
   0x28, 0x6e, 0x75, 0x6c, 0x6c, 0x20, 0x73, 0x63,
   0x68, 0x65, 0x6d, 0x61, 0x29, 0x00, 0x00, 0x00,
 }};
-const RawSchema NULL_SCHEMA = {
+const RawSchema null_schema = {
   0x0000000000000000, NULL_SCHEMA_BYTES.words, 13,
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
-  { &NULL_SCHEMA, nullptr, nullptr, 0, 0, nullptr }
+  { &null_schema, nullptr, nullptr, 0, 0, nullptr }
 };
+const RawSchema * NULL_SCHEMA(){ return &null_schema; }
 
 static const AlignedData<14> NULL_STRUCT_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -109,11 +110,12 @@ static const AlignedData<14> NULL_STRUCT_SCHEMA_BYTES = {{
   0x72, 0x75, 0x63, 0x74, 0x20, 0x73, 0x63, 0x68,
   0x65, 0x6d, 0x61, 0x29, 0x00, 0x00, 0x00, 0x00,
 }};
-const RawSchema NULL_STRUCT_SCHEMA = {
+constexpr RawSchema null_struct_schema = {
   0x0000000000000001, NULL_STRUCT_SCHEMA_BYTES.words, 14,
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
-  { &NULL_STRUCT_SCHEMA, nullptr, nullptr, 0, 0, nullptr }
+  { &null_struct_schema, nullptr, nullptr, 0, 0, nullptr }
 };
+const RawSchema * NULL_STRUCT_SCHEMA(){ return &null_struct_schema; }
 
 static const AlignedData<14> NULL_ENUM_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -131,11 +133,12 @@ static const AlignedData<14> NULL_ENUM_SCHEMA_BYTES = {{
   0x75, 0x6d, 0x20, 0x73, 0x63, 0x68, 0x65, 0x6d,
   0x61, 0x29, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 }};
-const RawSchema NULL_ENUM_SCHEMA = {
+constexpr RawSchema null_enum_schema = {
   0x0000000000000002, NULL_ENUM_SCHEMA_BYTES.words, 14,
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
-  { &NULL_ENUM_SCHEMA, nullptr, nullptr, 0, 0, nullptr }
+  { &null_enum_schema, nullptr, nullptr, 0, 0, nullptr }
 };
+const RawSchema * NULL_ENUM_SCHEMA(){ return &null_enum_schema; }
 
 static const AlignedData<14> NULL_INTERFACE_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -153,11 +156,12 @@ static const AlignedData<14> NULL_INTERFACE_SCHEMA_BYTES = {{
   0x74, 0x65, 0x72, 0x66, 0x61, 0x63, 0x65, 0x20,
   0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x29, 0x00,
 }};
-const RawSchema NULL_INTERFACE_SCHEMA = {
+constexpr RawSchema null_interface_schema = {
   0x0000000000000003, NULL_INTERFACE_SCHEMA_BYTES.words, 14,
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
-  { &NULL_INTERFACE_SCHEMA, nullptr, nullptr, 0, 0, nullptr }
+  { &null_interface_schema, nullptr, nullptr, 0, 0, nullptr }
 };
+const RawSchema * NULL_INTERFACE_SCHEMA(){ return &null_interface_schema; }
 
 static const AlignedData<20> NULL_CONST_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x05, 0x00,
@@ -181,11 +185,12 @@ static const AlignedData<20> NULL_CONST_SCHEMA_BYTES = {{
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 }};
-const RawSchema NULL_CONST_SCHEMA = {
+constexpr RawSchema null_const_schema = {
   0x0000000000000004, NULL_CONST_SCHEMA_BYTES.words, 20,
   nullptr, nullptr, 0, 0, nullptr, nullptr, nullptr,
-  { &NULL_CONST_SCHEMA, nullptr, nullptr, 0, 0, nullptr }
+  { &null_const_schema, nullptr, nullptr, 0, 0, nullptr }
 };
+const RawSchema * NULL_CONST_SCHEMA(){ return &null_const_schema; }
 
 }  // namespace _ (private)
 
@@ -197,6 +202,10 @@ schema::Node::Reader Schema::getProto() const {
 
 kj::ArrayPtr<const word> Schema::asUncheckedMessage() const {
   return kj::arrayPtr(raw->generic->encodedNode, raw->generic->encodedSize);
+}
+
+Schema Schema::getDependency(uint64_t id) const {
+  return getDependency(id, 0);
 }
 
 Schema Schema::getDependency(uint64_t id, uint location) const {
@@ -263,6 +272,8 @@ Schema::BrandArgumentList Schema::getBrandArgumentsAtScope(uint64_t scopeId) con
   // This scope is not listed in the scopes list.
   return BrandArgumentList(scopeId, raw->isUnbound());
 }
+
+StructSchema::StructSchema(): Schema(&_::NULL_STRUCT_SCHEMA()->defaultBrand) {}
 
 StructSchema Schema::asStruct() const {
   KJ_REQUIRE(getProto().isStruct(), "Tried to use non-struct schema as a struct.",
@@ -602,7 +613,7 @@ InterfaceSchema::SuperclassList InterfaceSchema::getSuperclasses() const {
 }
 
 bool InterfaceSchema::extends(InterfaceSchema other) const {
-  if (other.raw->generic == &_::NULL_INTERFACE_SCHEMA) {
+  if (other.raw->generic == _::NULL_INTERFACE_SCHEMA()) {
     // We consider all interfaces to extend the null schema.
     return true;
   }
@@ -635,7 +646,7 @@ bool InterfaceSchema::extends(InterfaceSchema other, uint& counter) const {
 }
 
 kj::Maybe<InterfaceSchema> InterfaceSchema::findSuperclass(uint64_t typeId) const {
-  if (typeId == _::NULL_INTERFACE_SCHEMA.id) {
+  if (typeId == _::NULL_INTERFACE_SCHEMA()->id) {
     // We consider all interfaces to extend the null schema.
     return InterfaceSchema();
   }

@@ -54,7 +54,7 @@ namespace _ {  // private
 
 template <typename T, typename CapnpPrivate = typename T::_capnpPrivate, bool = false>
 inline const RawSchema& rawSchema() {
-  return *CapnpPrivate::schema;
+  return *CapnpPrivate::schema();
 }
 template <typename T, uint64_t id = schemas::EnumInfo<T>::typeId>
 inline const RawSchema& rawSchema() {
@@ -67,7 +67,7 @@ inline const RawBrandedSchema& rawBrandedSchema() {
 }
 template <typename T, uint64_t id = schemas::EnumInfo<T>::typeId>
 inline const RawBrandedSchema& rawBrandedSchema() {
-  return schemas::EnumInfo<T>::schema->defaultBrand;
+  return schemas::EnumInfo<T>::schema()->defaultBrand;
 }
 
 template <typename TypeTag, typename... Params>
@@ -78,7 +78,7 @@ struct ChooseBrand;
 template <typename TypeTag>
 struct ChooseBrand<TypeTag> {
   // All params were AnyPointer. No specific brand needed.
-  static constexpr _::RawBrandedSchema const* brand() { return &TypeTag::schema->defaultBrand; }
+  static constexpr _::RawBrandedSchema const* brand() { return &TypeTag::schema()->defaultBrand; }
 };
 
 template <typename TypeTag, typename... Rest>
@@ -190,8 +190,8 @@ constexpr RawBrandedSchema::Binding brandBindingFor() {
   return BrandBindingFor_<T>::get(0);
 }
 
-kj::StringTree structString(StructReader reader, const RawBrandedSchema& schema);
-kj::String enumString(uint16_t value, const RawBrandedSchema& schema);
+CAPNP_API kj::StringTree structString(StructReader reader, const RawBrandedSchema& schema);
+CAPNP_API kj::String enumString(uint16_t value, const RawBrandedSchema& schema);
 // Declared here so that we can declare inline stringify methods on generated types.
 // Defined in stringify.c++, which depends on dynamic.c++, which is allowed not to be linked in.
 
@@ -338,18 +338,22 @@ inline constexpr uint sizeInWords() {
 
 #if CAPNP_LITE
 
-#define CAPNP_DECLARE_SCHEMA(id) \
-    extern ::capnp::word const* const bp_##id
+#define CAPNP_DECLARE_SCHEMA_2(id, exp) \
+    extern exp ::capnp::word const* const bp_##id
 
-#define CAPNP_DECLARE_ENUM(type, id) \
+#define CAPNP_DECLARE_SCHEMA(id) CAPNP_DECLARE_SCHEMA_2(id, )
+
+#define CAPNP_DECLARE_ENUM_2(type, id, exp) \
     inline ::kj::String KJ_STRINGIFY(type##_##id value) { \
       return ::kj::str(static_cast<uint16_t>(value)); \
     } \
-    template <> struct EnumInfo<type##_##id> { \
+    template <> struct exp EnumInfo<type##_##id> { \
       struct IsEnum; \
       static constexpr uint64_t typeId = 0x##id; \
       static inline ::capnp::word const* encodedSchema() { return bp_##id; } \
     }
+
+#define CAPNP_DECLARE_ENUM(type, id) CAPNP_DECLARE_ENUM_2(type, id, )
 
 #if _MSC_VER
 // TODO(msvc): MSVC dosen't expect constexprs to have definitions.
@@ -368,23 +372,28 @@ inline constexpr uint sizeInWords() {
 
 #else  // CAPNP_LITE
 
-#define CAPNP_DECLARE_SCHEMA(id) \
-    extern ::capnp::word const* const bp_##id; \
-    extern const ::capnp::_::RawSchema s_##id
+#define CAPNP_DECLARE_SCHEMA_2(id, exp) \
+    extern exp ::capnp::word const* const bp_##id; \
+    extern exp const ::capnp::_::RawSchema s_##id; \
+    extern exp ::capnp::_::RawSchema const* const sp_##id
 
-#define CAPNP_DECLARE_ENUM(type, id) \
+#define CAPNP_DECLARE_SCHEMA(id) CAPNP_DECLARE_SCHEMA(id, )
+
+#define CAPNP_DECLARE_ENUM_2(type, id, exp) \
     inline ::kj::String KJ_STRINGIFY(type##_##id value) { \
       return ::capnp::_::enumString(value); \
     } \
-    template <> struct EnumInfo<type##_##id> { \
+    template <> struct exp EnumInfo<type##_##id> { \
       struct IsEnum; \
       static constexpr uint64_t typeId = 0x##id; \
       static inline ::capnp::word const* encodedSchema() { return bp_##id; } \
-      static constexpr ::capnp::_::RawSchema const* schema = &s_##id; \
+      static inline ::capnp::_::RawSchema const* schema() { return sp_##id; } \
     }
+
+#define CAPNP_DECLARE_ENUM(type, id) CAPNP_DECLARE_ENUM_2(type, id, )
+
 #define CAPNP_DEFINE_ENUM(type, id) \
-    constexpr uint64_t EnumInfo<type>::typeId; \
-    constexpr ::capnp::_::RawSchema const* EnumInfo<type>::schema
+    constexpr uint64_t EnumInfo<type>::typeId
 
 #define CAPNP_DECLARE_STRUCT_HEADER(id, dataWordSize_, pointerCount_) \
       struct IsStruct; \
@@ -393,13 +402,13 @@ inline constexpr uint sizeInWords() {
       static constexpr uint16_t dataWordSize = dataWordSize_; \
       static constexpr uint16_t pointerCount = pointerCount_; \
       static inline ::capnp::word const* encodedSchema() { return ::capnp::schemas::bp_##id; } \
-      static constexpr ::capnp::_::RawSchema const* schema = &::capnp::schemas::s_##id;
+      static inline ::capnp::_::RawSchema const* schema() { return ::capnp::schemas::sp_##id; }
 
 #define CAPNP_DECLARE_INTERFACE_HEADER(id) \
       struct IsInterface; \
       static constexpr uint64_t typeId = 0x##id; \
       static constexpr ::capnp::Kind kind = ::capnp::Kind::INTERFACE; \
       static inline ::capnp::word const* encodedSchema() { return ::capnp::schemas::bp_##id; } \
-      static constexpr ::capnp::_::RawSchema const* schema = &::capnp::schemas::s_##id;
+      static inline ::capnp::_::RawSchema const* schema() { return ::capnp::schemas::sp_##id; }
 
 #endif  // CAPNP_LITE, else

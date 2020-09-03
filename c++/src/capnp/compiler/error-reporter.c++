@@ -58,6 +58,8 @@ LineBreakTable::LineBreakTable(kj::ArrayPtr<const char> content)
   }
 }
 
+LineBreakTable::~LineBreakTable() {}
+
 GlobalErrorReporter::SourcePos LineBreakTable::toSourcePos(uint32_t byteOffset) const {
   uint line = findLargestElementBefore(lineBreaks, byteOffset);
   uint col = byteOffset - lineBreaks[line];

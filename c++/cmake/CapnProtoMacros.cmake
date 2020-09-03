@@ -125,3 +125,33 @@ function(CAPNP_GENERATE_CPP SOURCES HEADERS)
   set(${SOURCES} ${${SOURCES}} PARENT_SCOPE)
   set(${HEADERS} ${${HEADERS}} PARENT_SCOPE)
 endfunction()
+
+# CAPNP_READ_EXPORT_TAGS ===========================================================
+#
+# Example usage:
+#   find_package(CapnProto)
+#   capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS schema.capnp)
+#
+#   capnp_generate_export_tags(CAPNP_EXPORT_TAGS ${CAPNP_SCHEMAS})
+#   target_compile_definitions(foo PRIVATE ${CAPNP_EXPORT_TAGS})
+#
+#   add_executable(foo main.cpp ${CAPNP_SRCS})
+#   target_link_libraries(foo PRIVATE CapnProto::capnp-rpc)
+#   target_include_directories(foo PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+function(CAPNP_GENERATE_EXPORT_TAGS TAG_LIST)
+  set(${TAG_LIST})
+  foreach(schema_file ${ARGN})
+    file(READ "${schema_file}" file_contents)
+    STRING(REGEX REPLACE ";" "\\\\;" file_contents "${file_contents}")
+    STRING(REGEX REPLACE "\n" ";" file_contents "${file_contents}")
+    list(GET file_contents 0 first_line)
+
+    string(REGEX MATCH "^@0x([a-f0-9]+)$" MATCH ${first_line})
+    if (CMAKE_MATCH_COUNT GREATER 0)
+      list(APPEND TAG_LIST "CAPNP_${CMAKE_MATCH_1}_EXPORTS")
+    endif()
+  endforeach()
+
+  set(${TAG_LIST} ${${TAG_LIST}} PARENT_SCOPE)
+endfunction()

@@ -82,7 +82,7 @@ enum class Equality {
 
 kj::StringPtr KJ_STRINGIFY(Equality res);
 
-struct AnyPointer {
+struct CAPNP_API AnyPointer {
   // Reader/Builder for the `AnyPointer` field type, i.e. a pointer that can point to an arbitrary
   // object.
 
@@ -264,7 +264,7 @@ struct AnyPointer {
   };
 
 #if !CAPNP_LITE
-  class Pipeline {
+  class CAPNP_API Pipeline {
   public:
     typedef AnyPointer Pipelines;
 

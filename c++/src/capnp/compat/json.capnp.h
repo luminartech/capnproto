@@ -3,6 +3,24 @@
 
 #pragma once
 
+// thanks windows
+#undef CONST
+
+#ifndef CAPNP_8ef99297a43a5e34_API 
+#if defined(_MSC_VER)
+#if defined(CAPNP_8ef99297a43a5e34_EXPORTS)
+#define CAPNP_8ef99297a43a5e34_API  __declspec(dllexport)
+#else
+#if defined(_LIB)
+#define CAPNP_8ef99297a43a5e34_API 
+#else
+#define CAPNP_8ef99297a43a5e34_API  __declspec(dllimport)
+#endif
+#endif
+#else
+#define CAPNP_8ef99297a43a5e34_API 
+#endif
+#endif
 #include <capnp/generated-header-support.h>
 #include <kj/windows-sanity.h>
 #if !CAPNP_LITE
@@ -17,16 +35,16 @@
 namespace capnp {
 namespace schemas {
 
-CAPNP_DECLARE_SCHEMA(a3fa7845f919dd83);
-CAPNP_DECLARE_SCHEMA(e31026e735d69ddf);
-CAPNP_DECLARE_SCHEMA(a0d9f6eca1c93d48);
-CAPNP_DECLARE_SCHEMA(fa5b1fd61c2e7c3d);
-CAPNP_DECLARE_SCHEMA(82d3e852af0336bf);
-CAPNP_DECLARE_SCHEMA(c4df13257bc2ea61);
-CAPNP_DECLARE_SCHEMA(cfa794e8d19a0162);
-CAPNP_DECLARE_SCHEMA(c2f8c20c293e5319);
-CAPNP_DECLARE_SCHEMA(d7d879450a253e4b);
-CAPNP_DECLARE_SCHEMA(f061e22f0ae5c7b5);
+CAPNP_DECLARE_SCHEMA_2(a3fa7845f919dd83, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(e31026e735d69ddf, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(a0d9f6eca1c93d48, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(fa5b1fd61c2e7c3d, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(82d3e852af0336bf, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(c4df13257bc2ea61, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(cfa794e8d19a0162, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(c2f8c20c293e5319, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(d7d879450a253e4b, CAPNP_8ef99297a43a5e34_API );
+CAPNP_DECLARE_SCHEMA_2(f061e22f0ae5c7b5, CAPNP_8ef99297a43a5e34_API );
 
 }  // namespace schemas
 }  // namespace capnp
@@ -55,7 +73,7 @@ struct Value {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(a3fa7845f919dd83, 2, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -70,7 +88,7 @@ struct Value::Field {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(e31026e735d69ddf, 0, 2)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -85,7 +103,7 @@ struct Value::Call {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(a0d9f6eca1c93d48, 0, 2)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -100,7 +118,7 @@ struct FlattenOptions {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(c4df13257bc2ea61, 0, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -115,14 +133,14 @@ struct DiscriminatorOptions {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(c2f8c20c293e5319, 0, 2)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
 // =======================================================================================
 
-class Value::Reader {
+class CAPNP_8ef99297a43a5e34_API Value::Reader {
 public:
   typedef Value Reads;
 
@@ -177,7 +195,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Value::Builder {
+class CAPNP_8ef99297a43a5e34_API Value::Builder {
 public:
   typedef Value Builds;
 
@@ -248,7 +266,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Value::Pipeline {
+class CAPNP_8ef99297a43a5e34_API Value::Pipeline {
 public:
   typedef Value Pipelines;
 
@@ -264,7 +282,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Value::Field::Reader {
+class CAPNP_8ef99297a43a5e34_API Value::Field::Reader {
 public:
   typedef Field Reads;
 
@@ -299,7 +317,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Value::Field::Builder {
+class CAPNP_8ef99297a43a5e34_API Value::Field::Builder {
 public:
   typedef Field Builds;
 
@@ -339,7 +357,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Value::Field::Pipeline {
+class CAPNP_8ef99297a43a5e34_API Value::Field::Pipeline {
 public:
   typedef Field Pipelines;
 
@@ -356,7 +374,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Value::Call::Reader {
+class CAPNP_8ef99297a43a5e34_API Value::Call::Reader {
 public:
   typedef Call Reads;
 
@@ -391,7 +409,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Value::Call::Builder {
+class CAPNP_8ef99297a43a5e34_API Value::Call::Builder {
 public:
   typedef Call Builds;
 
@@ -431,7 +449,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Value::Call::Pipeline {
+class CAPNP_8ef99297a43a5e34_API Value::Call::Pipeline {
 public:
   typedef Call Pipelines;
 
@@ -447,7 +465,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class FlattenOptions::Reader {
+class CAPNP_8ef99297a43a5e34_API FlattenOptions::Reader {
 public:
   typedef FlattenOptions Reads;
 
@@ -479,7 +497,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class FlattenOptions::Builder {
+class CAPNP_8ef99297a43a5e34_API FlattenOptions::Builder {
 public:
   typedef FlattenOptions Builds;
 
@@ -512,7 +530,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class FlattenOptions::Pipeline {
+class CAPNP_8ef99297a43a5e34_API FlattenOptions::Pipeline {
 public:
   typedef FlattenOptions Pipelines;
 
@@ -528,7 +546,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class DiscriminatorOptions::Reader {
+class CAPNP_8ef99297a43a5e34_API DiscriminatorOptions::Reader {
 public:
   typedef DiscriminatorOptions Reads;
 
@@ -563,7 +581,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class DiscriminatorOptions::Builder {
+class CAPNP_8ef99297a43a5e34_API DiscriminatorOptions::Builder {
 public:
   typedef DiscriminatorOptions Builds;
 
@@ -603,7 +621,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class DiscriminatorOptions::Pipeline {
+class CAPNP_8ef99297a43a5e34_API DiscriminatorOptions::Pipeline {
 public:
   typedef DiscriminatorOptions Pipelines;
 

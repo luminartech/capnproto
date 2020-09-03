@@ -4,6 +4,8 @@ set(VERSION 0.7.0)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKJ_USE_EPOLL=0")
+
 include(CheckIncludeFileCXX)
 include(GNUInstallDirs)
 if(MSVC)
@@ -25,9 +27,11 @@ set(INSTALL_TARGETS_DEFAULT_ARGS
 
 # Options ======================================================================
 
-option(BUILD_TESTING "Build unit tests and enable CTest 'check' target." ON)
+option(BUILD_TESTING "Build unit tests and enable CTest 'check' target." OFF)
 option(EXTERNAL_CAPNP "Use the system capnp binary, or the one specified in $CAPNP, instead of using the compiled one." OFF)
 option(CAPNP_LITE "Compile Cap'n Proto in 'lite mode', in which all reflection APIs (schema.h, dynamic.h, etc.) are not included. Produces a smaller library at the cost of features. All programs built against the library must be compiled with -DCAPNP_LITE. Requires EXTERNAL_CAPNP." OFF)
+option(CAPNP_RPC "Compile Cap'n Proto with RPC networking support." ON)
+option(KJ_HTTP "Compile Cap'n Proto KJ with HTTP networking support." ON)
 
 # Check for invalid combinations of build options
 if(CAPNP_LITE AND BUILD_TESTING AND NOT EXTERNAL_CAPNP)
@@ -72,6 +76,10 @@ else()
   if (NOT ANDROID AND NOT QNXNTO)
     add_compile_options(-pthread)
   endif()
+endif()
+
+if (NOT BUILD_SHARED_LIBS)
+  add_definitions(-D_LIB)
 endif()
 
 # Source =======================================================================

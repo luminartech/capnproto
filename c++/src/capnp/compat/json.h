@@ -32,7 +32,7 @@ typedef json::Value JsonValue;
 //
 // TODO(cleanup): Consider replacing all uses of JsonValue with json::Value?
 
-class JsonCodec {
+class CAPNP_JSON_API JsonCodec {
   // Flexible class for encoding Cap'n Proto types as JSON, and decoding JSON back to Cap'n Proto.
   //
   // Typical usage:

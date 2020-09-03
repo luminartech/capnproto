@@ -30,7 +30,7 @@
 namespace kj {
 namespace _ {  // private
 
-struct HashCoder {
+struct KJ_API HashCoder {
   // This is a dummy type with only one instance: HASHCODER (below).  To make an arbitrary type
   // hashable, define `operator*(HashCoder, T)` to return any other type that is already hashable.
   // Be sure to declare the operator in the same namespace as `T` **or** in the global scope.

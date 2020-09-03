@@ -353,7 +353,7 @@ class TreeIndex;
 
 namespace _ {  // private
 
-KJ_NORETURN(void throwDuplicateTableRow());
+KJ_API KJ_NORETURN(void throwDuplicateTableRow());
 
 template <typename Dst, typename Src, typename = decltype(instance<Src>().size())>
 inline void tryReserveSize(Dst& dst, Src&& src) { dst.reserve(dst.size() + src.size()); }
@@ -845,7 +845,7 @@ size_t Table<Row, Indexes...>::eraseAllImpl(Collection&& collection) {
 
 namespace _ {  // private
 
-void logHashTableInconsistency();
+KJ_API void logHashTableInconsistency();
 
 struct HashBucket {
   uint hash;
@@ -881,9 +881,9 @@ inline size_t probeHash(const kj::Array<HashBucket>& buckets, size_t i) {
   }
 }
 
-kj::Array<HashBucket> rehash(kj::ArrayPtr<const HashBucket> oldBuckets, size_t targetSize);
+KJ_API kj::Array<HashBucket> rehash(kj::ArrayPtr<const HashBucket> oldBuckets, size_t targetSize);
 
-uint chooseBucket(uint hash, uint count);
+KJ_API uint chooseBucket(uint hash, uint count);
 
 }  // namespace _ (private)
 
@@ -1038,7 +1038,7 @@ inline void azero(T* ptr, size_t size) { memset(ptr, 0, size * sizeof(T)); }
 //
 // TODO(cleanup): These are generally useful, put them somewhere.
 
-class BTreeImpl {
+class KJ_API BTreeImpl {
 public:
   class Iterator;
   class MaybeUint;

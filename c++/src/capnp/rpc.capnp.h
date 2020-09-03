@@ -3,6 +3,24 @@
 
 #pragma once
 
+// thanks windows
+#undef CONST
+
+#ifndef CAPNP_b312981b2552a250_API 
+#if defined(_MSC_VER)
+#if defined(CAPNP_b312981b2552a250_EXPORTS)
+#define CAPNP_b312981b2552a250_API  __declspec(dllexport)
+#else
+#if defined(_LIB)
+#define CAPNP_b312981b2552a250_API 
+#else
+#define CAPNP_b312981b2552a250_API  __declspec(dllimport)
+#endif
+#endif
+#else
+#define CAPNP_b312981b2552a250_API 
+#endif
+#endif
 #include <capnp/generated-header-support.h>
 #include <kj/windows-sanity.h>
 
@@ -14,34 +32,34 @@
 namespace capnp {
 namespace schemas {
 
-CAPNP_DECLARE_SCHEMA(91b79f1f808db032);
-CAPNP_DECLARE_SCHEMA(e94ccf8031176ec4);
-CAPNP_DECLARE_SCHEMA(836a53ce789d4cd4);
-CAPNP_DECLARE_SCHEMA(dae8b0f61aab5f99);
-CAPNP_DECLARE_SCHEMA(9e19b28d3db3573a);
-CAPNP_DECLARE_SCHEMA(d37d2eb2c2f80e63);
-CAPNP_DECLARE_SCHEMA(bbc29655fa89086e);
-CAPNP_DECLARE_SCHEMA(ad1a6c0d7dd07497);
-CAPNP_DECLARE_SCHEMA(f964368b0fbd3711);
-CAPNP_DECLARE_SCHEMA(d562b4df655bdd4d);
-CAPNP_DECLARE_SCHEMA(9c6a046bfbc1ac5a);
-CAPNP_DECLARE_SCHEMA(d4c9b56290554016);
-CAPNP_DECLARE_SCHEMA(fbe1980490e001af);
-CAPNP_DECLARE_SCHEMA(95bc14545813fbc1);
-CAPNP_DECLARE_SCHEMA(9a0e61223d96743b);
-CAPNP_DECLARE_SCHEMA(8523ddc40b86b8b0);
-CAPNP_DECLARE_SCHEMA(d800b1d6cd6f1ca0);
-CAPNP_DECLARE_SCHEMA(f316944415569081);
-CAPNP_DECLARE_SCHEMA(d37007fde1f0027d);
-CAPNP_DECLARE_SCHEMA(d625b7063acf691a);
-CAPNP_DECLARE_SCHEMA(b28c96e23f4cbd58);
-enum class Type_b28c96e23f4cbd58: uint16_t {
+CAPNP_DECLARE_SCHEMA_2(91b79f1f808db032, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(e94ccf8031176ec4, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(836a53ce789d4cd4, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(dae8b0f61aab5f99, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(9e19b28d3db3573a, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(d37d2eb2c2f80e63, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(bbc29655fa89086e, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(ad1a6c0d7dd07497, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(f964368b0fbd3711, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(d562b4df655bdd4d, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(9c6a046bfbc1ac5a, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(d4c9b56290554016, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(fbe1980490e001af, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(95bc14545813fbc1, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(9a0e61223d96743b, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(8523ddc40b86b8b0, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(d800b1d6cd6f1ca0, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(f316944415569081, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(d37007fde1f0027d, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(d625b7063acf691a, CAPNP_b312981b2552a250_API );
+CAPNP_DECLARE_SCHEMA_2(b28c96e23f4cbd58, CAPNP_b312981b2552a250_API );
+enum class CAPNP_b312981b2552a250_API Type_b28c96e23f4cbd58: uint16_t {
   FAILED,
   OVERLOADED,
   DISCONNECTED,
   UNIMPLEMENTED,
 };
-CAPNP_DECLARE_ENUM(Type, b28c96e23f4cbd58);
+CAPNP_DECLARE_ENUM_2(Type, b28c96e23f4cbd58, CAPNP_b312981b2552a250_API );
 
 }  // namespace schemas
 }  // namespace capnp
@@ -75,7 +93,7 @@ struct Message {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(91b79f1f808db032, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -90,7 +108,7 @@ struct Bootstrap {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(e94ccf8031176ec4, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -106,7 +124,7 @@ struct Call {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(836a53ce789d4cd4, 3, 3)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -126,7 +144,7 @@ struct Call::SendResultsTo {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(dae8b0f61aab5f99, 3, 3)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -149,7 +167,7 @@ struct Return {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(9e19b28d3db3573a, 2, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -164,7 +182,7 @@ struct Finish {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(d37d2eb2c2f80e63, 1, 0)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -183,7 +201,7 @@ struct Resolve {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(bbc29655fa89086e, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -198,7 +216,7 @@ struct Release {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(ad1a6c0d7dd07497, 1, 0)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -214,7 +232,7 @@ struct Disembargo {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(f964368b0fbd3711, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -235,7 +253,7 @@ struct Disembargo::Context {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(d562b4df655bdd4d, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -250,7 +268,7 @@ struct Provide {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(9c6a046bfbc1ac5a, 1, 2)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -265,7 +283,7 @@ struct Accept {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(d4c9b56290554016, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -280,7 +298,7 @@ struct Join {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(fbe1980490e001af, 1, 2)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -299,7 +317,7 @@ struct MessageTarget {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(95bc14545813fbc1, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -314,7 +332,7 @@ struct Payload {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(9a0e61223d96743b, 0, 2)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -337,7 +355,7 @@ struct CapDescriptor {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(8523ddc40b86b8b0, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -353,7 +371,7 @@ struct PromisedAnswer {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(d800b1d6cd6f1ca0, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -372,7 +390,7 @@ struct PromisedAnswer::Op {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(f316944415569081, 1, 0)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -387,7 +405,7 @@ struct ThirdPartyCapDescriptor {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(d37007fde1f0027d, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -404,14 +422,14 @@ struct Exception {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(d625b7063acf691a, 1, 1)
     #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    static ::capnp::_::RawBrandedSchema const* brand() { return &schema()->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
 // =======================================================================================
 
-class Message::Reader {
+class CAPNP_b312981b2552a250_API Message::Reader {
 public:
   typedef Message Reads;
 
@@ -497,7 +515,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Message::Builder {
+class CAPNP_b312981b2552a250_API Message::Builder {
 public:
   typedef Message Builds;
 
@@ -630,7 +648,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Message::Pipeline {
+class CAPNP_b312981b2552a250_API Message::Pipeline {
 public:
   typedef Message Pipelines;
 
@@ -646,7 +664,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Bootstrap::Reader {
+class CAPNP_b312981b2552a250_API Bootstrap::Reader {
 public:
   typedef Bootstrap Reads;
 
@@ -680,7 +698,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Bootstrap::Builder {
+class CAPNP_b312981b2552a250_API Bootstrap::Builder {
 public:
   typedef Bootstrap Builds;
 
@@ -713,7 +731,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Bootstrap::Pipeline {
+class CAPNP_b312981b2552a250_API Bootstrap::Pipeline {
 public:
   typedef Bootstrap Pipelines;
 
@@ -729,7 +747,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Call::Reader {
+class CAPNP_b312981b2552a250_API Call::Reader {
 public:
   typedef Call Reads;
 
@@ -774,7 +792,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Call::Builder {
+class CAPNP_b312981b2552a250_API Call::Builder {
 public:
   typedef Call Builds;
 
@@ -829,7 +847,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Call::Pipeline {
+class CAPNP_b312981b2552a250_API Call::Pipeline {
 public:
   typedef Call Pipelines;
 
@@ -848,7 +866,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Call::SendResultsTo::Reader {
+class CAPNP_b312981b2552a250_API Call::SendResultsTo::Reader {
 public:
   typedef SendResultsTo Reads;
 
@@ -888,7 +906,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Call::SendResultsTo::Builder {
+class CAPNP_b312981b2552a250_API Call::SendResultsTo::Builder {
 public:
   typedef SendResultsTo Builds;
 
@@ -928,7 +946,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Call::SendResultsTo::Pipeline {
+class CAPNP_b312981b2552a250_API Call::SendResultsTo::Pipeline {
 public:
   typedef SendResultsTo Pipelines;
 
@@ -944,7 +962,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Return::Reader {
+class CAPNP_b312981b2552a250_API Return::Reader {
 public:
   typedef Return Reads;
 
@@ -999,7 +1017,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Return::Builder {
+class CAPNP_b312981b2552a250_API Return::Builder {
 public:
   typedef Return Builds;
 
@@ -1065,7 +1083,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Return::Pipeline {
+class CAPNP_b312981b2552a250_API Return::Pipeline {
 public:
   typedef Return Pipelines;
 
@@ -1081,7 +1099,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Finish::Reader {
+class CAPNP_b312981b2552a250_API Finish::Reader {
 public:
   typedef Finish Reads;
 
@@ -1114,7 +1132,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Finish::Builder {
+class CAPNP_b312981b2552a250_API Finish::Builder {
 public:
   typedef Finish Builds;
 
@@ -1146,7 +1164,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Finish::Pipeline {
+class CAPNP_b312981b2552a250_API Finish::Pipeline {
 public:
   typedef Finish Pipelines;
 
@@ -1162,7 +1180,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Resolve::Reader {
+class CAPNP_b312981b2552a250_API Resolve::Reader {
 public:
   typedef Resolve Reads;
 
@@ -1202,7 +1220,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Resolve::Builder {
+class CAPNP_b312981b2552a250_API Resolve::Builder {
 public:
   typedef Resolve Builds;
 
@@ -1248,7 +1266,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Resolve::Pipeline {
+class CAPNP_b312981b2552a250_API Resolve::Pipeline {
 public:
   typedef Resolve Pipelines;
 
@@ -1264,7 +1282,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Release::Reader {
+class CAPNP_b312981b2552a250_API Release::Reader {
 public:
   typedef Release Reads;
 
@@ -1297,7 +1315,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Release::Builder {
+class CAPNP_b312981b2552a250_API Release::Builder {
 public:
   typedef Release Builds;
 
@@ -1329,7 +1347,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Release::Pipeline {
+class CAPNP_b312981b2552a250_API Release::Pipeline {
 public:
   typedef Release Pipelines;
 
@@ -1345,7 +1363,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Disembargo::Reader {
+class CAPNP_b312981b2552a250_API Disembargo::Reader {
 public:
   typedef Disembargo Reads;
 
@@ -1379,7 +1397,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Disembargo::Builder {
+class CAPNP_b312981b2552a250_API Disembargo::Builder {
 public:
   typedef Disembargo Builds;
 
@@ -1415,7 +1433,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Disembargo::Pipeline {
+class CAPNP_b312981b2552a250_API Disembargo::Pipeline {
 public:
   typedef Disembargo Pipelines;
 
@@ -1433,7 +1451,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Disembargo::Context::Reader {
+class CAPNP_b312981b2552a250_API Disembargo::Context::Reader {
 public:
   typedef Context Reads;
 
@@ -1475,7 +1493,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Disembargo::Context::Builder {
+class CAPNP_b312981b2552a250_API Disembargo::Context::Builder {
 public:
   typedef Context Builds;
 
@@ -1518,7 +1536,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Disembargo::Context::Pipeline {
+class CAPNP_b312981b2552a250_API Disembargo::Context::Pipeline {
 public:
   typedef Context Pipelines;
 
@@ -1534,7 +1552,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Provide::Reader {
+class CAPNP_b312981b2552a250_API Provide::Reader {
 public:
   typedef Provide Reads;
 
@@ -1571,7 +1589,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Provide::Builder {
+class CAPNP_b312981b2552a250_API Provide::Builder {
 public:
   typedef Provide Builds;
 
@@ -1611,7 +1629,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Provide::Pipeline {
+class CAPNP_b312981b2552a250_API Provide::Pipeline {
 public:
   typedef Provide Pipelines;
 
@@ -1628,7 +1646,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Accept::Reader {
+class CAPNP_b312981b2552a250_API Accept::Reader {
 public:
   typedef Accept Reads;
 
@@ -1664,7 +1682,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Accept::Builder {
+class CAPNP_b312981b2552a250_API Accept::Builder {
 public:
   typedef Accept Builds;
 
@@ -1700,7 +1718,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Accept::Pipeline {
+class CAPNP_b312981b2552a250_API Accept::Pipeline {
 public:
   typedef Accept Pipelines;
 
@@ -1716,7 +1734,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Join::Reader {
+class CAPNP_b312981b2552a250_API Join::Reader {
 public:
   typedef Join Reads;
 
@@ -1753,7 +1771,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Join::Builder {
+class CAPNP_b312981b2552a250_API Join::Builder {
 public:
   typedef Join Builds;
 
@@ -1793,7 +1811,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Join::Pipeline {
+class CAPNP_b312981b2552a250_API Join::Pipeline {
 public:
   typedef Join Pipelines;
 
@@ -1810,7 +1828,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class MessageTarget::Reader {
+class CAPNP_b312981b2552a250_API MessageTarget::Reader {
 public:
   typedef MessageTarget Reads;
 
@@ -1847,7 +1865,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class MessageTarget::Builder {
+class CAPNP_b312981b2552a250_API MessageTarget::Builder {
 public:
   typedef MessageTarget Builds;
 
@@ -1886,7 +1904,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class MessageTarget::Pipeline {
+class CAPNP_b312981b2552a250_API MessageTarget::Pipeline {
 public:
   typedef MessageTarget Pipelines;
 
@@ -1902,7 +1920,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Payload::Reader {
+class CAPNP_b312981b2552a250_API Payload::Reader {
 public:
   typedef Payload Reads;
 
@@ -1937,7 +1955,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Payload::Builder {
+class CAPNP_b312981b2552a250_API Payload::Builder {
 public:
   typedef Payload Builds;
 
@@ -1974,7 +1992,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Payload::Pipeline {
+class CAPNP_b312981b2552a250_API Payload::Pipeline {
 public:
   typedef Payload Pipelines;
 
@@ -1990,7 +2008,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class CapDescriptor::Reader {
+class CAPNP_b312981b2552a250_API CapDescriptor::Reader {
 public:
   typedef CapDescriptor Reads;
 
@@ -2040,7 +2058,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class CapDescriptor::Builder {
+class CAPNP_b312981b2552a250_API CapDescriptor::Builder {
 public:
   typedef CapDescriptor Builds;
 
@@ -2099,7 +2117,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class CapDescriptor::Pipeline {
+class CAPNP_b312981b2552a250_API CapDescriptor::Pipeline {
 public:
   typedef CapDescriptor Pipelines;
 
@@ -2115,7 +2133,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class PromisedAnswer::Reader {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Reader {
 public:
   typedef PromisedAnswer Reads;
 
@@ -2149,7 +2167,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class PromisedAnswer::Builder {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Builder {
 public:
   typedef PromisedAnswer Builds;
 
@@ -2185,7 +2203,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class PromisedAnswer::Pipeline {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Pipeline {
 public:
   typedef PromisedAnswer Pipelines;
 
@@ -2201,7 +2219,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class PromisedAnswer::Op::Reader {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Op::Reader {
 public:
   typedef Op Reads;
 
@@ -2237,7 +2255,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class PromisedAnswer::Op::Builder {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Op::Builder {
 public:
   typedef Op Builds;
 
@@ -2272,7 +2290,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class PromisedAnswer::Op::Pipeline {
+class CAPNP_b312981b2552a250_API PromisedAnswer::Op::Pipeline {
 public:
   typedef Op Pipelines;
 
@@ -2288,7 +2306,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class ThirdPartyCapDescriptor::Reader {
+class CAPNP_b312981b2552a250_API ThirdPartyCapDescriptor::Reader {
 public:
   typedef ThirdPartyCapDescriptor Reads;
 
@@ -2322,7 +2340,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class ThirdPartyCapDescriptor::Builder {
+class CAPNP_b312981b2552a250_API ThirdPartyCapDescriptor::Builder {
 public:
   typedef ThirdPartyCapDescriptor Builds;
 
@@ -2355,7 +2373,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class ThirdPartyCapDescriptor::Pipeline {
+class CAPNP_b312981b2552a250_API ThirdPartyCapDescriptor::Pipeline {
 public:
   typedef ThirdPartyCapDescriptor Pipelines;
 
@@ -2371,7 +2389,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Exception::Reader {
+class CAPNP_b312981b2552a250_API Exception::Reader {
 public:
   typedef Exception Reads;
 
@@ -2409,7 +2427,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Exception::Builder {
+class CAPNP_b312981b2552a250_API Exception::Builder {
 public:
   typedef Exception Builds;
 
@@ -2451,7 +2469,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class Exception::Pipeline {
+class CAPNP_b312981b2552a250_API Exception::Pipeline {
 public:
   typedef Exception Pipelines;
 

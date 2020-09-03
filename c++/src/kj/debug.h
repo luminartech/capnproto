@@ -350,7 +350,7 @@ namespace kj {
 
 namespace _ {  // private
 
-class Debug {
+class KJ_API Debug {
 public:
   Debug() = delete;
 
@@ -364,10 +364,10 @@ public:
   };
 #endif
 
-  static inline bool shouldLog(LogSeverity severity) { return severity >= minSeverity; }
+  static bool shouldLog(LogSeverity severity);
   // Returns whether messages of the given severity should be logged.
 
-  static inline void setLogLevel(LogSeverity severity) { minSeverity = severity; }
+  static void setLogLevel(LogSeverity severity);
   // Set the minimum message severity which will be logged.
   //
   // TODO(someday):  Expose publicly.
@@ -376,7 +376,7 @@ public:
   static void log(const char* file, int line, LogSeverity severity, const char* macroArgs,
                   Params&&... params);
 
-  class Fault {
+  class KJ_API Fault {
   public:
     template <typename Code, typename... Params>
     Fault(const char* file, int line, Code code,
@@ -407,7 +407,7 @@ public:
     Exception* exception;
   };
 
-  class SyscallResult {
+  class KJ_API SyscallResult {
   public:
     inline SyscallResult(int errorNumber): errorNumber(errorNumber) {}
     inline operator void*() { return errorNumber == 0 ? this : nullptr; }
@@ -429,7 +429,7 @@ public:
   static uint getWin32ErrorCode();
 #endif
 
-  class Context: public ExceptionCallback {
+  class KJ_API Context: public ExceptionCallback {
   public:
     Context();
     KJ_DISALLOW_COPY(Context);
