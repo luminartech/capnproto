@@ -42,6 +42,10 @@ cmake -Bbuild -H. ^
  -DCMAKE_TOOLCHAIN_FILE=%toolchain% ^
  -DCMAKE_PREFIX_PATH:PATH=%cmakePrefixPath% ^
  -DCMAKE_INSTALL_PREFIX:PATH=%cmakePrefixPath% ^
+ -DCAPNP_RPC=false ^
+ -DKJ_HTTP=false ^
+ -DBUILD_TESTING=false ^
+ -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=true ^
  -DBUILD_SHARED_LIBS=ON || goto fail
 
 cmake --build ./build --config %buildType% --target install || goto fail
